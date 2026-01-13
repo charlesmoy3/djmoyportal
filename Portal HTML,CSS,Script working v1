@@ -480,6 +480,28 @@
     @media (min-width:520px){
       .entryWrap{padding-top:40px;padding-bottom:40px;}
     }
+/* ================================
+   Hide store chrome on portal page
+   ================================ */
+
+/* Kill FW header & footer so the portal is full-screen */
+.page__header,
+.page__footer {
+  display: none !important;
+}
+
+/* Remove any extra padding FW gives the main content */
+.page__main {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Make the whole viewport available to the portal */
+body {
+  background: #05060a;         /* your portal bg */
+  margin: 0 !important;
+}
+
   </style>
 </head>
 <body>
