@@ -1006,28 +1006,25 @@ const FW_VARIANTS = {
     updateManualSummary();
   }
 
-// ===== Manual-mode helpers =====
-function getManualAddonsSummary(){
-  const addons = [];
-  if (manualState.addons.noise) addons.push("Noise cleanup");
-  if (manualState.addons.vocal) addons.push("Vocal Upgrade");
-  if (manualState.addons.priority) addons.push("Priority delivery");
-  if (manualState.addons.revision) addons.push("Extra revision");
-  return addons;
-}
+function buildManualSongDescriptor() {
+  const {
+    artistName,
+    songTitle,
+    genre,
+    bpm,
+    key,
+    extraNotes
+  } = metaState;
 
-  function buildManualSongDescriptor(){
-  const { artistName, songTitle, genre, bpm, key, extraNotes } = metaState;
   const parts = [];
 
+  // File / service summary
   const hasMix = manualState.services.has("mix");
   const hasMaster = manualState.services.has("master");
-  const services = [];
-  if (hasMix) services.push("Mix");
-  if (hasMaster) services.push("Master");
 
-  if (services.length === 2) parts.push("Mix + Master");
-  else if (services.length === 1) parts.push(services[0]);
+  if (hasMix && hasMaster) parts.push("Mix + Master");
+  else if (hasMix) parts.push("Mix");
+  else if (hasMaster) parts.push("Master");
 
   const prettyFileType = {
     finished_song: "Finished song file",
@@ -1039,24 +1036,12 @@ function getManualAddonsSummary(){
   const fileTypeLabel = prettyFileType[manualState.fileType];
   if (fileTypeLabel) parts.push(fileTypeLabel);
 
-  if (manualState.fileType === "stems" && manualState.stemTier){
-    parts.push(`Stems: ${manualState.stemTier} stems`);
-  }
-
-  const issues = [];
-  if (manualState.issues.noise) issues.push("Noise / hum");
-  if (manualState.issues.tone) issues.push("Tone / harshness");
-  if (manualState.issues.dynamics) issues.push("Dynamics / punch");
-  if (manualState.issues.clarity) issues.push("Clarity / mud");
-  if (manualState.issues.other && manualState.issues.otherText){
-    issues.push(manualState.issues.otherText);
-  }
-  if (issues.length){
-    parts.push(`Issues to fix: ${issues.join(", ")}`);
+  if (manualState.fileType === "stems" && manualState.stemTier) {
+    parts.push(`Stem tier: ${manualState.stemTier}`);
   }
 
   const addonsList = getManualAddonsSummary();
-  if (addonsList.length){
+  if (addonsList.length) {
     parts.push(`Add-ons: ${addonsList.join(", ")}`);
   }
 
@@ -1065,15 +1050,15 @@ function getManualAddonsSummary(){
   if (key) parts.push(`Key: ${key}`);
   if (extraNotes) parts.push(`Notes: ${extraNotes}`);
 
-  // ----- Cart metadata for this song -----
+  // Metadata for checkout
   let serviceType = null;
   if (hasMix && hasMaster) serviceType = "mixmaster";
   else if (hasMix) serviceType = "mix";
   else if (hasMaster) serviceType = "master";
 
   let stemTier = null;
-  if (manualState.fileType === "stems" && manualState.stemTier){
-    stemTier = manualState.stemTier; // "1-4", "5-8", "9-16", "17-24", "25+"
+  if (manualState.fileType === "stems" && manualState.stemTier) {
+    stemTier = manualState.stemTier;
   }
 
   const cartInfo = {
@@ -1094,6 +1079,7 @@ function getManualAddonsSummary(){
     cartInfo
   };
 }
+
 
 
   function buildManualProjectSongsText(){
