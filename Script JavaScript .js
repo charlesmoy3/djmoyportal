@@ -1006,6 +1006,16 @@ const FW_VARIANTS = {
     updateManualSummary();
   }
 
+// ===== Manual-mode helpers =====
+function getManualAddonsSummary(){
+  const addons = [];
+  if (manualState.addons.noise) addons.push("Noise cleanup");
+  if (manualState.addons.vocal) addons.push("Vocal Upgrade");
+  if (manualState.addons.priority) addons.push("Priority delivery");
+  if (manualState.addons.revision) addons.push("Extra revision");
+  return addons;
+}
+
   function buildManualSongDescriptor(){
   const { artistName, songTitle, genre, bpm, key, extraNotes } = metaState;
   const parts = [];
