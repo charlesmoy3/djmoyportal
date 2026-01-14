@@ -2398,11 +2398,12 @@ function buildCartLineItemsFromSongs(songs){
 }
 
 async function createFourthwallCart(lineItems){
-  const response = await fetch(`${FW_API_BASE}/carts`, {
+  const url = `${FW_API_BASE}/carts?storefront_token=${encodeURIComponent(FW_STOREFRONT_TOKEN)}&currency=USD`;
+
+  const response = await fetch(url, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${FW_STOREFRONT_TOKEN}`
+      "Content-Type": "application/json"
     },
     body: JSON.stringify({ items: lineItems })
   });
@@ -2416,11 +2417,16 @@ async function createFourthwallCart(lineItems){
 
   if (!response.ok){
     console.error("Fourthwall error response:", data);
-    throw new Error(data && data.title ? data.title : "Failed to create cart");
+    throw new Error(
+      (data && (data.title || data.detail)) ||
+      `Failed to create cart (status ${response.status})`
+    );
   }
 
+  console.log("Fourthwall cart created:", data);
   return data;
 }
+
 
 async function handlePortalCheckout(mode){
   // 1) Build the list of songs for this mode
