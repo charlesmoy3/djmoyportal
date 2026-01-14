@@ -2397,6 +2397,8 @@ function buildCartLineItemsFromSongs(songs){
 }
 
 async function createFourthwallCart(lineItems){
+  // Fourthwall Storefront API: POST /v1/carts
+  // Auth is via storefront_token query param, not Authorization header
   const url = `${FW_API_BASE}/carts?storefront_token=${encodeURIComponent(FW_STOREFRONT_TOKEN)}&currency=USD`;
 
   const response = await fetch(url, {
@@ -2406,6 +2408,26 @@ async function createFourthwallCart(lineItems){
     },
     body: JSON.stringify({ items: lineItems })
   });
+
+  let data;
+  try {
+    data = await response.json();
+  } catch (e){
+    console.error("Error parsing Fourthwall response:", e);
+  }
+
+  if (!response.ok){
+    console.error("Fourthwall error response:", data);
+    throw new Error(
+      (data && (data.title || data.detail)) ||
+      `Failed to create cart (status ${response.status})`
+    );
+  }
+
+  console.log("Fourthwall cart created:", data);
+  return data;
+}
+
 
   let data;
   try {
