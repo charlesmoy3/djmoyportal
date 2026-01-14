@@ -2399,7 +2399,8 @@ function buildCartLineItemsFromSongs(songs){
 async function createFourthwallCart(lineItems){
   // Fourthwall Storefront API: POST /v1/carts
   // Auth is via storefront_token query param, not Authorization header
-  const url = `${FW_API_BASE}/carts?storefront_token=${encodeURIComponent(FW_STOREFRONT_TOKEN)}&currency=USD`;
+  const url =
+    `${FW_API_BASE}/carts?storefront_token=${encodeURIComponent(FW_STOREFRONT_TOKEN)}&currency=USD`;
 
   const response = await fetch(url, {
     method: "POST",
@@ -2428,8 +2429,6 @@ async function createFourthwallCart(lineItems){
   return data;
 }
 
-
-
 async function handlePortalCheckout(mode){
   // 1) Build the list of songs for this mode
   const songs = getAllSongsForCart(mode);
@@ -2444,31 +2443,29 @@ async function handlePortalCheckout(mode){
     alert("Nothing to add to cart based on your selections. Please double-check your services.");
     return;
   }
-  
-console.log("Fourthwall line items:", lineItems);
 
-    // 3) Open Tally upload form in a new tab (same behavior as before)
+  console.log("Fourthwall line items:", lineItems);
+
+  // 3) Open Tally upload form in a new tab
   let tallyURL = mode === "guided" ? buildGuidedTallyURL() : buildManualTallyURL();
 
-  // Guard: if a builder misbehaves, fall back to base form instead of blank tab
+  // Guard: if a builder misbehaves, fall back to base form instead of a blank tab
   if (!tallyURL || typeof tallyURL !== "string"){
     console.error("Tally URL builder returned an invalid value:", tallyURL);
     tallyURL = TALLY_BASE_URL;
   }
 
   console.log("Opening Tally URL:", tallyURL);
-    // Safari-safe popup pattern
-  const newTab = window.open("", "_blank");
 
+  // Safari-safe popup pattern
+  const newTab = window.open("", "_blank");
   if (newTab && tallyURL){
     // Navigate the newly opened tab explicitly (works better in Safari)
     newTab.location.href = tallyURL;
   } else if (tallyURL){
-    // Fallback if popups are blocked: at least navigate this tab
-    window.location.href = tallyURL;
+    // Fallback if popups are blocked
+    window.open(tallyURL, "_blank");
   }
-
-
 
   // 3.5) If we're running locally (file preview / localhost), skip the API cart step.
   const isLocalEnv =
@@ -2499,12 +2496,13 @@ console.log("Fourthwall line items:", lineItems);
       return;
     }
 
+    // Keep using /cart since you said that URL worked for you
     const checkoutUrl =
       `https://${FW_CHECKOUT_DOMAIN}/cart/?cartCurrency=USD&cartId=${encodeURIComponent(cart.id)}`;
 
     window.location.href = checkoutUrl;
   } catch (err){
-    console.error("Error creating Fourthwall cart:", err);
+    console.error("Error creating your Fourthwall cart:", err);
     alert(
       "There was a problem creating your cart automatically.\n\n" +
       "Your upload form is already open in a new tab — " +
@@ -2513,10 +2511,11 @@ console.log("Fourthwall line items:", lineItems);
   }
 }
 
+// Final init — leave this exactly as-is
+guidedInitOnce();
+manualInit();
+showMode("entry");
 
-  guidedInitOnce();
-  manualInit();
-  showMode("entry");
 </script>
 </body>
 </html>
