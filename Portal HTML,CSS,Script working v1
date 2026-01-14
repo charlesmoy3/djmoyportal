@@ -2498,7 +2498,8 @@ async function handlePortalCheckout(mode){
 
     // Keep using /cart since you said that URL worked for you
     const checkoutUrl =
-      `https://${FW_CHECKOUT_DOMAIN}/cart/?cartCurrency=USD&cartId=${encodeURIComponent(cart.id)}`;
+  `https://${FW_CHECKOUT_DOMAIN}/checkout/?cartCurrency=USD&cartId=${encodeURIComponent(cart.id)}`;
+
 
     window.location.href = checkoutUrl;
   } catch (err){
