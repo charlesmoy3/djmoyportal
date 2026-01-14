@@ -481,26 +481,25 @@
       .entryWrap{padding-top:40px;padding-bottom:40px;}
     }
 /* ================================
-   Hide store chrome on portal page
+   Light store chrome tweaks for portal page
    ================================ */
 
-/* Kill FW header & footer so the portal is full-screen */
-.page__header,
+/* Keep header visible but hide the page footer on this portal page */
 .page__footer {
   display: none !important;
 }
 
-/* Remove any extra padding FW gives the main content */
+/* Remove extra padding Fourthwall gives the main content so the portal can handle spacing */
 .page__main {
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
 
-/* Make the whole viewport available to the portal */
+/* Match the portal background to the page */
 body {
-  background: #05060a;         /* your portal bg */
-  margin: 0 !important;
+  background: #05060a;
 }
+
 
   </style>
 </head>
