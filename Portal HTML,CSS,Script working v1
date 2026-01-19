@@ -1058,6 +1058,16 @@ h1 {
     margin-top: 20px;
   }
 }
+/* Hide the Fourthwall footer on this portal page */
+.page__footer {
+  display: none !important;
+}
+
+/* Remove extra padding so the portal controls spacing */
+.page__main {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
 
     </style>
 </head>
