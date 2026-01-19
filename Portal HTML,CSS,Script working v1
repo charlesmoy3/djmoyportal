@@ -1089,6 +1089,11 @@ h1 {
   padding-bottom: 48px !important;   /* breathing room at bottom */
   justify-content: flex-start !important;
 }
+/* Remove extra padding Fourthwall gives the main content on this page */
+.page__main {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
 
     </style>
 </head>
