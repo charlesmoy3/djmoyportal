@@ -1116,6 +1116,9 @@ const FW_VARIANTS = {
     if (manualState.addons.revision) a.push("Extra revision");
     return a;
   }
+function getManualAddonsSummary(){
+  return buildAddonsLabelFromManual();
+}
 
   function updateSongCounter(){
     const el = $("songCounter");
@@ -2062,18 +2065,6 @@ const FW_VARIANTS = {
 
   if (manualState.fileType === "stems" && manualState.stemTier){
     parts.push(`Stems: ${manualState.stemTier} stems`);
-  }
-
-  const issues = [];
-  if (manualState.issues.noise) issues.push("Noise / hum");
-  if (manualState.issues.tone) issues.push("Tone / harshness");
-  if (manualState.issues.dynamics) issues.push("Dynamics / punch");
-  if (manualState.issues.clarity) issues.push("Clarity / mud");
-  if (manualState.issues.other && manualState.issues.otherText){
-    issues.push(manualState.issues.otherText);
-  }
-  if (issues.length){
-    parts.push(`Issues to fix: ${issues.join(", ")}`);
   }
 
   const addonsList = getManualAddonsSummary();
