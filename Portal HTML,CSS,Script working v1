@@ -116,17 +116,18 @@ body::after {
 }
 
 /* Main container with phone frame */
+
 .mainContainer {
   position: relative;
   z-index: 1;
   max-width: 100%;
   margin: 0 auto;
-  padding: 20px 20px;        /* less vertical padding */
-  min-height: 100vh;
+  padding: 20px 20px;          /* you can tweak this later */
+  min-height: auto;            /* ⬅️ was 100vh – this is the problem line */
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;  /* <— important */
+  justify-content: flex-start; /* start at the top, not centered/bottom */
 }
 
 /* Logo/Brand */
