@@ -1059,41 +1059,23 @@ h1 {
     margin-top: 20px;
   }
 }
-/* Hide the Fourthwall footer on this portal page */
+/* Layout tweaks for this portal page on Fourthwall */
+
+/* Keep the footer hidden on this page (already above, but safe here too) */
 .page__footer {
   display: none !important;
 }
 
-/* Remove extra padding so the portal controls spacing */
+/* Let the portal control spacing, but give it some breathing room
+   under the site header and above the bottom of the screen */
 .page__main {
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-}
-/* Fix theme pushing portal down */
-.page__main,
-.page__content-wrapper,
-.content {
-  padding-top: 0 !important;
+  display: block !important;
+  padding-top: 40px !important;   /* distance from header – adjust up/down */
+  padding-bottom: 60px !important;/* space before bottom edge */
   margin-top: 0 !important;
+  min-height: auto !important;
 }
 
-/* Control portal placement cleanly */
-#portal-container {
-  margin-top: 40px;
-  margin-bottom: 40px;
-}
-/* === FIX MIXING PORTAL VERTICAL POSITION === */
-.mainContainer {
-  min-height: auto !important;       /* don't force full-screen */
-  padding-top: 24px !important;      /* distance from header */
-  padding-bottom: 48px !important;   /* breathing room at bottom */
-  justify-content: flex-start !important;
-}
-/* Remove extra padding Fourthwall gives the main content on this page */
-.page__main {
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-}
 
     </style>
 </head>
