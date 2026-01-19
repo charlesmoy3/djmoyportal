@@ -1079,7 +1079,7 @@ h1 {
 
 /* Vertically center the portal between header and bottom */
 .page__main {
-  min-height: calc(100vh - 80px) !important; /* subtract header height */
+  min-height: calc(100vh - 100px) !important; /* subtract header height */
   display: flex !important;
   flex-direction: column;
   justify-content: center;
