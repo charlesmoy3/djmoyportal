@@ -2463,17 +2463,28 @@ async function handlePortalCheckout(mode){
     tallyURL = TALLY_BASE_URL;
   }
 
-  console.log("Opening Tally URL:", tallyURL);
+ console.log("Opening Tally URL:", tallyURL);
 
-  // Safari-safe popup pattern
-  const newTab = window.open("", "_blank");
-  if (newTab && tallyURL){
-    // Navigate the newly opened tab explicitly (works better in Safari)
-    newTab.location.href = tallyURL;
+  // Open Tally form in another tab
+  const tallyTab = window.open("", "_blank");
+  if (tallyTab && tallyURL){
+    tallyTab.location.href = tallyURL;
   } else if (tallyURL){
-    // Fallback if popups are blocked
     window.open(tallyURL, "_blank");
   }
+
+  // Try to keep THIS tab in front (not guaranteed in every browser,
+  // but often works when called from a user click handler)
+  if (window.focus){
+    window.focus();
+  }
+
+  // Optional but HIGHLY recommended: tell the user the flow
+  alert(
+    "Step 1: In this tab, you’ll be sent to checkout to add your services to the cart.\n\n" +
+    "Step 2: A new tab with the upload form has been opened. " +
+    "After you finish checkout, switch to that tab to upload your files."
+  );
 
   // 3.5) If we're running locally (file preview / localhost), skip the API cart step.
   const isLocalEnv =
