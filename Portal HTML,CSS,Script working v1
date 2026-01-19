@@ -187,7 +187,7 @@ body::after {
 .entryWrap {
   width: 100%;
   max-width: 900px;
-  margin: 0 auto;
+  margin: -80px auto 60px;  /* ⬅ pull everything up */
   display: flex;
   flex-direction: column;
   justify-content: center;
