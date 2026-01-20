@@ -1091,7 +1091,7 @@ h1 {
     </style>
 </head>
 <body>
-
+<div class="portalShell">
 <!-- ========== MODE 1: ENTRY CHOOSER ========== -->
 <div id="entryMode" class="entryWrap">
   <div class="entryKicker">DJ MOY • MIXING & MASTERING</div>
@@ -1606,6 +1606,8 @@ h1 {
     </section>
   </div>
 </div>
+</div>
+// end of portalshell
 
 <script>
   const $ = id => document.getElementById(id);
