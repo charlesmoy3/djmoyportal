@@ -1105,7 +1105,22 @@ header nav {
     padding-top: 160px !important;  /* increase until it looks right */
   }
 }
+/* Soften overlays on smaller screens so the background isn't washed out */
+@media (max-width: 768px) {
+  body::before {
+    opacity: 0.5; /* was 0.6 – dim the star layer */
+  }
 
+  body::after {
+    opacity: 0.5; /* add explicit opacity to the purple/blue glow */
+  }
+
+  /* Optional: slightly darken the glass cards as well */
+  .entryCard,
+  .card {
+    background: rgba(10, 5, 25, 0.85);
+  }
+}
     </style>
 </head>
 <body>
