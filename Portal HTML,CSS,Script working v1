@@ -1062,48 +1062,28 @@ h1 {
 }
 /* Layout tweaks for this portal page on Fourthwall */
 
-/* Keep the footer hidden on this page (already above, but safe here too) */
+/* Hide the site footer on this page */
 .page__footer {
   display: none !important;
 }
 
-/* Let the portal control spacing, but give it some breathing room
-   under the site header and above the bottom of the screen */
+/* Give the content breathing room under the global header */
 .page__main {
   display: block !important;
-  padding-top: 40px !important;   /* distance from header – adjust up/down */
-  padding-bottom: 60px !important;/* space before bottom edge */
-  margin-top: 0 !important;
-  min-height: auto !important;
-}
-
-/* Vertically center the portal between header and bottom */
-.page__main {
-  min-height: calc(100vh - 100px) !important; /* subtract header height */
-  display: flex !important;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 0 !important;
+  padding-top: 100px !important;   /* space between header and portal */
+  padding-bottom: 80px !important; /* space above bottom edge */
   margin: 0 !important;
 }
-/* Center the whole portal between header and bottom of screen */
+
+/* Keep the portal nicely centered within the page width */
 .portalShell {
-  min-height: calc(100vh - 80px); /* 80px ≈ header height, tweak if needed */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;        /* vertical center */
-  align-items: center;            /* horizontal center */
-}
-/* Move nav links to the right side next to the icons */
-.site-header__navigation,
-.header-nav,
-.nav-links {
-  margin-left: auto !important;   /* pushes nav to the right */
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.header-actions {
-  margin-left: 16px !important;   /* optional spacing between nav and icons */
+/* Remove the main nav links, but keep logo + account/cart */
+header nav {
+  display: none !important;
 }
 
     </style>
