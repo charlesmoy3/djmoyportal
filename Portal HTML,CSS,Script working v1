@@ -1095,6 +1095,16 @@ h1 {
   justify-content: center;        /* vertical center */
   align-items: center;            /* horizontal center */
 }
+/* Move nav links to the right side next to the icons */
+.site-header__navigation,
+.header-nav,
+.nav-links {
+  margin-left: auto !important;   /* pushes nav to the right */
+}
+
+.header-actions {
+  margin-left: 16px !important;   /* optional spacing between nav and icons */
+}
 
     </style>
 </head>
