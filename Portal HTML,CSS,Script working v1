@@ -1092,6 +1092,22 @@ h1 {
 header nav {
   display: none !important;
 }
+/* Center the sticky footer + buttons under the card */
+.sticky {
+  display: flex;
+  justify-content: center;
+}
+
+/* Center the buttons as a group */
+.stickyInner {
+  width: 100%;
+  max-width: 525px;     /* or 600–700 if you want a wider bar */
+  margin: 0 auto;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+}
 
     </style>
 </head>
