@@ -750,7 +750,7 @@ h1 {
   display: flex;
   gap: 16px;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
 }
 
 .sticky .btn {
