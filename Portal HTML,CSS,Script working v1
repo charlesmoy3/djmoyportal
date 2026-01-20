@@ -39,7 +39,7 @@ body {
   position: relative;
   overflow-x: hidden;
   background-color: #000;
-  background-image: url(https://clinquant-melomakarona-92e574.netlify.app/bg.png);
+  background-image: url(https://raw.githubusercontent.com/charlesmoy3/djmoyportal/main/35862.png);
   background-repeat: no-repeat;
   background-size: cover;
   background-attachment: fixed;
