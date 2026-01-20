@@ -734,23 +734,20 @@ h1 {
 
 /* ========== STICKY NAVIGATION ========== */
 .sticky {
-  /* position: fixed; */
-  /* bottom: 0; */
-  /* left: 50%; */
-  /* transform: translateX(-50%); */
-  /* width: calc(100% - 32px); */
-  padding: 16px;
-  /* z-index: 10; */
-  margin-top: -80px;
+  margin: -40px auto 0;      /* pulls the bar up closer to the card */
+  padding: 0 32px 32px;      /* side + bottom padding */
+  max-width: 900px;          /* same width as your main card */
 }
 
 .stickyInner {
-  max-width: 900px;          /* match your main card width */
-  margin: 0 auto;
   display: flex;
-  gap: 16px;
+  justify-content: center;   /* center Back + Next as a group */
   align-items: center;
-  justify-content: center;   /* keep them centered as a pair */
+  gap: 16px;                 /* space between the two buttons */
+}
+
+.sticky .btn {
+  min-width: 140px;
 }
 
 .sticky .btn {
@@ -1091,22 +1088,6 @@ h1 {
 /* Remove the main nav links, but keep logo + account/cart */
 header nav {
   display: none !important;
-}
-/* Center the sticky footer + buttons under the card */
-.sticky {
-  display: flex;
-  justify-content: center;
-}
-
-/* Center the buttons as a group */
-.stickyInner {
-  width: 100%;
-  max-width: 525px;     /* or 600–700 if you want a wider bar */
-  margin: 0 auto;
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  justify-content: center;
 }
 
     </style>
