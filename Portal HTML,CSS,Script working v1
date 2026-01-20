@@ -329,7 +329,7 @@ body::after {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 40px 20px 120px;
+   padding: 40px 20px 40px;
   display: flex;
   flex-direction: column;
 }
@@ -734,14 +734,15 @@ h1 {
 
 /* ========== STICKY NAVIGATION ========== */
 .sticky {
-  position: static !important;   /* <-- turn off sticky/fixed behavior */
+  position: static;          /* make sure it's not sticky/fixed */
   width: 100%;
+  max-width: 900px;
+  margin: 8px auto 40px;     /* 8px above buttons, 40px bottom of page */
+  padding: 0 32px;
   display: flex;
   justify-content: center;
+}
 
-  margin: -8px auto 0;
-  padding: 0 32px 32px;
-  max-width: 900px;
 }
 
 }
