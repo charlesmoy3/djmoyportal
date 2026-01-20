@@ -1087,6 +1087,14 @@ h1 {
   padding: 0 !important;
   margin: 0 !important;
 }
+/* Center the whole portal between header and bottom of screen */
+.portalShell {
+  min-height: calc(100vh - 80px); /* 80px ≈ header height, tweak if needed */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;        /* vertical center */
+  align-items: center;            /* horizontal center */
+}
 
     </style>
 </head>
