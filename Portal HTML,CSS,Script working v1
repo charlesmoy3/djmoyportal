@@ -1076,10 +1076,17 @@ h1 {
 }
 
 /* Keep the portal nicely centered within the page width */
+/* Position the portal comfortably under the header */
 .portalShell {
-  max-width: 1200px;
-  margin: 0 auto;
+  min-height: auto;              /* don't force full-screen vertical centering */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;   /* start nearer the top */
+  align-items: center;
+  padding-top: 40px;             /* space under the header */
+  padding-bottom: 80px;          /* space above the bottom of the page */
 }
+
 
 /* Remove the main nav links, but keep logo + account/cart */
 header nav {
