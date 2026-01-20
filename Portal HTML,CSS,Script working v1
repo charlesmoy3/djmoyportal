@@ -734,16 +734,19 @@ h1 {
 
 /* ========== STICKY NAVIGATION ========== */
 .sticky {
-  margin: -40px auto 0;      /* pulls the bar up closer to the card */
-  padding: 0 32px 32px;      /* side + bottom padding */
-  max-width: 900px;          /* same width as your main card */
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: -40px auto 0;
+  padding: 0 32px 32px;
+  max-width: 900px;
 }
 
 .stickyInner {
   display: flex;
-  justify-content: center;   /* center Back + Next as a group */
+  justify-content: center;
   align-items: center;
-  gap: 16px;                 /* space between the two buttons */
+  gap: 16px;
 }
 
 .sticky .btn {
