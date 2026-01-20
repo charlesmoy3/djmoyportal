@@ -745,12 +745,12 @@ h1 {
 }
 
 .stickyInner {
-  max-width: 525px;
+  max-width: 900px;          /* match your main card width */
   margin: 0 auto;
   display: flex;
   gap: 16px;
   align-items: center;
-  justify-content: center;
+  justify-content: center;   /* keep them centered as a pair */
 }
 
 .sticky .btn {
