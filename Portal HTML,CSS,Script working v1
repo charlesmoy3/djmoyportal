@@ -739,7 +739,7 @@ h1 {
   display: flex;
   justify-content: center;
 
-  margin: 16px auto 0;
+  margin: 8px auto 0;
   padding: 0 32px 32px;
   max-width: 900px;
 }
