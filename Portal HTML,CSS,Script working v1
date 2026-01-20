@@ -1109,11 +1109,11 @@ header nav {
 /* Soften overlays on smaller screens so the background isn't washed out */
 @media (max-width: 768px) {
   body::before {
-    opacity: 0.25; /* was 0.6 – dim the star layer */
+    opacity: 0.5; /* was 0.6 – dim the star layer */
   }
 
   body::after {
-    opacity: 0.25; /* add explicit opacity to the purple/blue glow */
+    opacity: 0.5; /* add explicit opacity to the purple/blue glow */
   }
 
   /* Optional: slightly darken the glass cards as well */
