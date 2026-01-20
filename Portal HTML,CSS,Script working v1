@@ -1615,7 +1615,7 @@ h1 {
   </div>
 </div>
 </div>
-/* end of powershell */
+
 
 <script>
   const $ = id => document.getElementById(id);
