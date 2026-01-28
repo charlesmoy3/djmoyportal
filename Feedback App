@@ -1,0 +1,1158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DJ Moy – Timestamp Feedback (V2.1)</title>
+ <style>
+  :root{
+    /* === DJ Moy Portal theme tokens (with slightly higher contrast for logs) === */
+    --bg-dark:#0a0118;
+    --bg-gradient-start:#1a0b2e;
+    --bg-gradient-end:#0f0520;
+
+    --card-glass: rgba(20, 15, 40, 0.78);          /* a touch stronger for readability */
+    --card-border: rgba(147, 112, 219, 0.34);
+
+    --text:#ffffff;
+    --muted: rgba(255,255,255,0.72);
+    --muted2: rgba(255,255,255,0.52);
+
+    --accent:#a855f7;     /* portal purple */
+    --accent2:#06b6d4;    /* portal cyan */
+    --warn:#ef4444;
+
+    --glow-purple: rgba(168, 85, 247, 0.42);
+    --glow-blue: rgba(59, 130, 246, 0.30);
+
+    --shadow: 0 20px 40px rgba(0,0,0,0.55);
+    --radius: 18px;
+
+    --line: rgba(255,255,255,0.11);
+    --line-strong: rgba(168, 85, 247, 0.28);
+
+    /* App panels (higher contrast than card-glass) */
+    --panel: rgba(0,0,0,0.26);
+    --panel2: rgba(0,0,0,0.38);
+
+    --focus: rgba(6,182,212,0.35);
+  }
+
+  *{ box-sizing:border-box; }
+
+  body{
+    margin:0;
+    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, Arial, sans-serif;
+    color: var(--text);
+    min-height: 100%;
+    position: relative;
+    overflow-x: hidden;
+
+    background-color:#000;
+    background-image: url(https://raw.githubusercontent.com/charlesmoy3/djmoyportal/main/35862.png);
+    background-repeat:no-repeat;
+    background-size:cover;
+    background-attachment:fixed;
+    width:100%;
+  }
+
+  /* Animated starry background (portal style) */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:
+      radial-gradient(2px 2px at 20% 30%, white, transparent),
+      radial-gradient(2px 2px at 60% 70%, white, transparent),
+      radial-gradient(1px 1px at 50% 50%, white, transparent),
+      radial-gradient(1px 1px at 80% 10%, white, transparent),
+      radial-gradient(2px 2px at 90% 60%, white, transparent),
+      radial-gradient(1px 1px at 33% 85%, white, transparent),
+      radial-gradient(2px 2px at 75% 25%, white, transparent),
+      radial-gradient(1px 1px at 10% 80%, white, transparent);
+    background-size:
+      200% 200%,
+      300% 300%,
+      250% 250%,
+      280% 280%,
+      220% 220%,
+      260% 260%,
+      240% 240%,
+      290% 290%;
+    background-position:50% 50%;
+    animation: twinkle 3s ease-in-out infinite alternate;
+    pointer-events:none;
+    z-index:0;
+    opacity:0.55;
+  }
+
+  @keyframes twinkle{
+    0%,100%{ opacity:0.45; }
+    50%{ opacity:0.8; }
+  }
+
+  /* Glow overlay (portal style) */
+  body::after{
+    content:"";
+    position:fixed;
+    top:-50%;
+    left:-50%;
+    width:200%;
+    height:200%;
+    background:
+      radial-gradient(ellipse at 20% 30%, var(--glow-purple), transparent 55%),
+      radial-gradient(ellipse at 80% 70%, var(--glow-blue), transparent 55%);
+    pointer-events:none;
+    z-index:0;
+    animation: gradientShift 15s ease-in-out infinite;
+  }
+
+  @keyframes gradientShift{
+    0%,100%{ transform: translate(0,0) rotate(0deg); }
+    50%{ transform: translate(10%,10%) rotate(5deg); }
+  }
+
+  .wrap{ max-width:1040px; margin:0 auto; padding:18px; position:relative; z-index:1; }
+
+  .card{
+    position:relative;
+    z-index:1;
+    background: var(--card-glass);
+    border:1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding:16px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(14px);
+  }
+
+  h1{ font-size:18px; margin:0 0 8px; }
+  .sub{ color:var(--muted); font-size:13px; margin-bottom:12px; }
+
+  .screen{ display:none; }
+  .screen.active{ display:block; }
+
+  .row{ display:grid; gap:12px; grid-template-columns:1fr; }
+  @media (min-width:900px){ .row{ grid-template-columns:1.2fr .8fr; } }
+
+  .meter{
+    border:1px solid rgba(255,255,255,0.10);
+    border-radius:14px;
+    padding:12px;
+    background: var(--panel);
+    display:grid;
+    gap:8px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+  }
+
+  .time{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    color:var(--muted);
+    font-size:13px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .small{ color:var(--muted); font-size:12px; }
+
+  .bigChoice{ display:grid; gap:10px; grid-template-columns:1fr; }
+  @media (min-width:640px){ .bigChoice{ grid-template-columns:1fr 1fr; } }
+
+  button{
+    border:1px solid rgba(255,255,255,0.10);
+    background: rgba(10, 8, 20, 0.62);
+    color:var(--text);
+    padding:14px 12px;
+    border-radius:14px;
+    font-size:15px;
+    cursor:pointer;
+    user-select:none;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+    transition: box-shadow .15s ease, border-color .15s ease, transform .05s ease;
+  }
+
+  button:hover{
+    border-color: var(--focus);
+    box-shadow: 0 12px 36px rgba(0,0,0,0.45), 0 0 0 1px rgba(168,85,247,0.22);
+  }
+
+  button:active{ transform: translateY(1px); }
+
+  button.secondary{ font-size:13px; padding:10px 12px; opacity:.98; }
+
+  button.good{
+    background: linear-gradient(180deg, rgba(6,182,212,0.18), rgba(0,0,0,0));
+  }
+
+  button.danger{
+    background: linear-gradient(180deg, rgba(168,85,247,0.16), rgba(0,0,0,0));
+  }
+
+  .input{
+    width:100%;
+    border:1px solid rgba(255,255,255,0.10);
+    border-radius:12px;
+    padding:12px;
+    background: rgba(0,0,0,0.30);
+    color:var(--text);
+    outline:none;
+  }
+
+  .input:focus{
+    border-color: rgba(6,182,212,0.35);
+    box-shadow: 0 0 0 3px rgba(6,182,212,0.12);
+  }
+
+  .field{ display:grid; gap:6px; margin-bottom:12px; }
+
+  .hr{ height:1px; background:rgba(255,255,255,0.08); margin:12px 0; }
+
+  .hidden{ display:none !important; }
+
+  audio{ width:100%; }
+
+  .playerCard{
+    border:1px solid rgba(255,255,255,0.10);
+    border-radius:14px;
+    padding:12px;
+    background: var(--panel);
+    display:grid;
+    gap:10px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+  }
+
+  .viz{
+    width:100%;
+    height:120px;
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:12px;
+    background: rgba(0,0,0,0.33);
+  }
+
+  .reactions{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  @media (min-width:640px){ .reactions{ grid-template-columns:1fr 1fr 1fr 1fr; } }
+
+  .log{
+    max-height:520px;
+    overflow:auto;
+    border:1px solid rgba(255,255,255,0.10);
+    border-radius:14px;
+    padding:10px;
+    background: var(--panel2);
+    font-variant-numeric: tabular-nums;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+  }
+
+  .item{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+    padding:8px 6px;
+    border-bottom: 1px dashed rgba(255,255,255,0.10);
+  }
+
+  .item:last-child{ border-bottom:none; }
+
+  .tag{
+    font-size:12px;
+    padding:4px 10px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,0.10);
+    white-space:nowrap;
+  }
+
+  .tag.hate{ background: rgba(239,68,68,0.14); border-color: rgba(239,68,68,0.20); }
+  .tag.dislike{ background: rgba(168,85,247,0.14); border-color: rgba(168,85,247,0.22); }
+  .tag.like{ background: rgba(6,182,212,0.14); border-color: rgba(6,182,212,0.22); }
+  .tag.love{ background: rgba(34,197,94,0.14); border-color: rgba(34,197,94,0.22); }
+  .tag.note{ background: rgba(147,112,219,0.14); border-color: rgba(147,112,219,0.24); }
+
+  .noteText{
+    color: var(--text);
+    font-size: 13px;
+    margin-top:6px;
+    line-height:1.25;
+    overflow-wrap:anywhere;
+    word-break:break-word;
+    white-space:pre-wrap;
+  }
+
+  .metaLine{ color:var(--muted2); font-size:12px; margin-top:2px; }
+
+  .topBar{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
+  .topBarLeft{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+
+  /* Note composer */
+  .composer{
+    border:1px solid rgba(255,255,255,0.10);
+    border-radius:14px;
+    padding:12px;
+    background: var(--panel);
+    display:grid;
+    gap:10px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+  }
+
+  textarea{
+    width:100%;
+    min-height:92px;
+    resize:vertical;
+    border:1px solid rgba(255,255,255,0.10);
+    border-radius:12px;
+    padding:12px;
+    background: rgba(0,0,0,0.30);
+    color: var(--text);
+    outline:none;
+    font-family: inherit;
+    font-size:14px;
+    line-height:1.3;
+  }
+
+  textarea:focus{
+    border-color: rgba(6,182,212,0.35);
+    box-shadow: 0 0 0 3px rgba(6,182,212,0.12);
+  }
+
+  /* Summary modal */
+  .modalOverlay{
+    position:fixed;
+    inset:0;
+    background: rgba(0,0,0,0.60);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+    z-index:9999;
+  }
+
+  .modalOverlay.active{ display:flex; }
+
+  .modal{
+    width:min(860px, 100%);
+    border:1px solid var(--card-border);
+    border-radius: var(--radius);
+    background: rgba(20, 15, 40, 0.92);
+    box-shadow: 0 24px 70px rgba(0,0,0,0.55);
+    padding:14px;
+    display:grid;
+    gap:10px;
+    backdrop-filter: blur(14px);
+  }
+
+  .modalHeader{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .modalTitle{ font-size:16px; margin:0; }
+
+  .summaryBox{
+    border:1px solid rgba(255,255,255,0.10);
+    border-radius:14px;
+    background: rgba(0,0,0,0.34);
+    padding:12px;
+    max-height:52vh;
+    overflow:auto;
+    white-space:pre-wrap;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size:12.5px;
+    line-height:1.35;
+  }
+
+/* ===========================
+   FOURTHWALL OVERRIDES
+   Enable when this file is fetched by Fourthwall
+   =========================== */
+
+header,
+footer,
+[data-testid="site-header"],
+[data-testid="site-footer"]{
+  display: none !important;
+}
+
+/* Remove extra page padding FW sometimes adds */
+main,
+body{
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+</style>
+
+</head>
+<body>
+  <div id="djmoyFeedbackApp">
+  <div class="wrap">
+    <div class="card">
+      <h1>Timestamp Feedback</h1>
+      <div class="sub">Listener taps reactions (😡 👎 👍 ❤️) or adds a time-locked note. You export the session at the end.</div>
+
+      <!-- SCREEN 1: Choose mode -->
+      <div id="screen1" class="screen active">
+        <div class="field">
+          <div class="small">Listener name (optional, but helpful):</div>
+          <input id="listenerName" class="input" type="text" placeholder="e.g., Anna / Friend / Client" />
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="small" style="margin-bottom:10px;">How do you want to play the song?</div>
+
+        <div class="bigChoice">
+          <button id="chooseUpload" class="good">📁 Upload audio file (local)</button>
+          <button id="chooseSC" class="secondary">🔗 Use SoundCloud link</button>
+        </div>
+
+        <div id="uploadBox" class="hidden" style="margin-top:12px;">
+          <div class="small">Pick an audio file from this device:</div>
+          <input id="file" class="input" type="file" accept="audio/*" />
+          <div class="small" style="margin-top:8px;">Nothing uploads anywhere. It plays locally.</div>
+        </div>
+
+        <div id="scBox" class="hidden" style="margin-top:12px;">
+          <div class="small">Paste a SoundCloud track link:</div>
+          <input id="scUrl" class="input" type="text" placeholder="https://soundcloud.com/artist/track" />
+          <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
+            <button id="loadSCBtn" class="secondary" style="flex:1; min-width:160px;">Load SoundCloud</button>
+          </div>
+          <div class="small" style="margin-top:8px;">
+            SoundCloud plays in an embedded player. We timestamp using SoundCloud’s widget API.
+          </div>
+        </div>
+      </div>
+
+      <!-- SCREEN 2: Player + Controls -->
+      <div id="screen2" class="screen">
+        <div class="topBar">
+          <div class="topBarLeft">
+  <button id="backBtn" class="secondary">← Back</button>
+</div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button id="summaryBtn" class="secondary">View Summary</button>
+            <button id="exportBtn" class="secondary">Export CSV</button>
+            <button id="copyBtn" class="secondary">Copy Log</button>
+            <button id="clearBtn" class="secondary danger">Clear Session</button>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row">
+          <div>
+            <div class="meter">
+              <div id="trackLine" class="small">Track: —</div>
+              <div class="time">
+                <span>Now: <span id="now">0:00</span></span>
+                <span>Length: <span id="dur">—</span></span>
+              </div>
+            </div>
+
+            <div class="playerCard" style="margin-top:12px;">
+              <!-- Local audio -->
+              <div id="localPlayerWrap">
+                <canvas id="viz" class="viz"></canvas>
+                <audio id="player" controls></audio>
+              </div>
+
+              <!-- SoundCloud player -->
+              <div id="scPlayerWrap" class="hidden">
+                <iframe id="scFrame" allow="autoplay" style="width:100%; height:166px; border:0; border-radius:12px;"></iframe>
+              </div>
+            </div>
+
+            <div class="small" style="margin: 10px 0 8px;">Reactions</div>
+            <div class="reactions">
+              <button id="hateBtn" class="danger">😡 Hate</button>
+              <button id="dislikeBtn" class="danger">👎 Dislike</button>
+              <button id="likeBtn" class="good">👍 Like</button>
+              <button id="loveBtn" class="good">❤️ Love</button>
+            </div>
+
+            <div class="hr"></div>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+              <button id="noteBtn" class="secondary" style="flex:1; min-width:160px;">📝 Note (lock timestamp)</button>
+              <div class="small" id="noteHint">Tap to lock the time, then type.</div>
+            </div>
+
+            <div id="composer" class="composer hidden" style="margin-top:10px;">
+              <div class="small">Note locked at: <b id="lockedAt">—</b></div>
+              <textarea id="noteText" placeholder="Type your note here..."></textarea>
+              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button id="submitNoteBtn" class="good" style="flex:1; min-width:160px;">Submit Note</button>
+                <button id="cancelNoteBtn" class="secondary" style="flex:1; min-width:160px;">Cancel</button>
+              </div>
+            </div>
+
+            <div class="small" style="margin-top:10px;">
+              Keyboard shortcuts (optional): H = hate, D = dislike, L = like, V = love. 
+            </div>
+          </div>
+
+          <div>
+            <div class="small" style="margin-bottom:8px;">Session log (auto-updates):</div>
+            <div id="log" class="log"></div>
+            <div class="small" style="margin-top:10px;">
+              This v2.1 does <b>not</b> auto-save across refresh — export/copy when you’re done.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  </div>
+
+  <!-- Summary Modal -->
+  <div id="modalOverlay" class="modalOverlay" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modalHeader">
+        <h2 class="modalTitle">Session Summary</h2>
+        <button id="closeModalBtn" class="secondary">Close</button>
+      </div>
+      <div class="summaryBox" id="summaryBox"></div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button id="copySummaryBtn" class="secondary" style="flex:1; min-width:180px;">Copy Summary</button>
+      </div>
+      <div class="small">Summary is generated locally from this session’s log.</div>
+    </div>
+  </div>
+
+  <!-- SoundCloud Widget API -->
+  <script src="https://w.soundcloud.com/player/api.js"></script>
+
+<script>
+(() => {
+  // Screens
+  const screen1 = document.getElementById('screen1');
+  const screen2 = document.getElementById('screen2');
+
+  // Screen1 inputs
+  const listenerNameInput = document.getElementById('listenerName');
+  const chooseUpload = document.getElementById('chooseUpload');
+  const chooseSC = document.getElementById('chooseSC');
+  const uploadBox = document.getElementById('uploadBox');
+  const scBox = document.getElementById('scBox');
+  const fileInput = document.getElementById('file');
+  const scUrl = document.getElementById('scUrl');
+  const loadSCBtn = document.getElementById('loadSCBtn');
+
+  // Screen2 UI
+  const backBtn = document.getElementById('backBtn');
+  const trackLine = document.getElementById('trackLine');
+  const nowEl = document.getElementById('now');
+  const durEl = document.getElementById('dur');
+  const logEl = document.getElementById('log');
+
+  // Local player + viz
+  const localWrap = document.getElementById('localPlayerWrap');
+  const player = document.getElementById('player');
+  const viz = document.getElementById('viz');
+  const vizCtx = viz.getContext('2d');
+
+  // SoundCloud player
+  const scWrap = document.getElementById('scPlayerWrap');
+  const scFrame = document.getElementById('scFrame');
+
+  // Buttons
+  const hateBtn = document.getElementById('hateBtn');
+  const dislikeBtn = document.getElementById('dislikeBtn');
+  const likeBtn = document.getElementById('likeBtn');
+  const loveBtn = document.getElementById('loveBtn');
+
+  const noteBtn = document.getElementById('noteBtn');
+  const composer = document.getElementById('composer');
+  const lockedAtEl = document.getElementById('lockedAt');
+  const noteText = document.getElementById('noteText');
+  const submitNoteBtn = document.getElementById('submitNoteBtn');
+  const cancelNoteBtn = document.getElementById('cancelNoteBtn');
+
+  const exportBtn = document.getElementById('exportBtn');
+  const copyBtn = document.getElementById('copyBtn');
+  const clearBtn = document.getElementById('clearBtn');
+
+  // Summary modal
+  const summaryBtn = document.getElementById('summaryBtn');
+  const modalOverlay = document.getElementById('modalOverlay');
+  const closeModalBtn = document.getElementById('closeModalBtn');
+  const copySummaryBtn = document.getElementById('copySummaryBtn');
+  const summaryBox = document.getElementById('summaryBox');
+
+  // State
+  let mode = null; // 'local' | 'soundcloud'
+  let session = null;
+
+  // SoundCloud widget state
+  let scWidget = null;
+  let scReady = false;
+  let scDurationMs = null;
+  let scPollTimer = null;
+
+  // Note lock state
+  let pendingNoteTime = null;
+
+  // Visualizer state (IMPORTANT: createMediaElementSource only once per audio element)
+  let audioCtx = null;
+  let sourceNode = null;
+  let analyser = null;
+  let dataArray = null;
+  let vizRaf = null;
+
+  function pad2(n){ return String(n).padStart(2,'0'); }
+  function fmtTime(sec){
+    sec = Math.max(0, Number(sec) || 0);
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m}:${pad2(s)}`;
+  }
+
+  function newSession(){
+    session = {
+      createdAt: Date.now(),
+      listener: (listenerNameInput.value || '').trim() || null,
+      mode,
+      trackLabel: null,
+      marks: []
+    };
+    updateHeader();
+    renderLog();
+  }
+
+  function updateHeader(){
+    trackLine.textContent = `Track: ${session?.trackLabel || '—'}`;
+  }
+
+  function gotoScreen(n){
+    screen1.classList.toggle('active', n === 1);
+    screen2.classList.toggle('active', n === 2);
+  }
+
+  function confirmLoseSessionIfNeeded(){
+    if (!session || !session.marks.length) return true;
+    return confirm('Switching modes will clear the current session log. Continue?');
+  }
+
+  // --- Log rendering + autoscroll ---
+  function isNearBottom(el, thresholdPx = 40){
+    return (el.scrollHeight - el.scrollTop - el.clientHeight) < thresholdPx;
+  }
+
+  function renderLog(){
+    if (!session || !session.marks.length){
+      logEl.innerHTML = `<div class="small">No marks yet. Tap reactions or add a note.</div>`;
+      return;
+    }
+
+    const shouldStick = isNearBottom(logEl);
+    const sorted = session.marks.slice().sort((a,b) => a.t - b.t);
+
+    logEl.innerHTML = sorted.map((m, idx) => {
+      const time = fmtTime(m.t);
+      if (m.type === 'note'){
+        const safe = escapeHtml(m.text || '');
+        return `
+          <div class="item">
+            <div>
+              <span class="tag note">📝 note</span>
+              <span class="metaLine"> @ ${time}</span>
+              <div class="noteText">${safe}</div>
+            </div>
+            <button class="secondary" data-del="${idx}">Delete</button>
+          </div>
+        `;
+      }
+
+      const map = {
+        hate:  { tag:'hate',  label:'😡 hate' },
+        dislike:{ tag:'dislike',label:'👎 dislike' },
+        like:  { tag:'like',  label:'👍 like' },
+        love:  { tag:'love',  label:'❤️ love' },
+      };
+      const info = map[m.type];
+      return `
+        <div class="item">
+          <div>
+            <span class="tag ${info.tag}">${info.label}</span>
+            <span class="metaLine"> @ ${time}</span>
+          </div>
+          <button class="secondary" data-del="${idx}">Delete</button>
+        </div>
+      `;
+    }).join('');
+
+    logEl.querySelectorAll('button[data-del]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = Number(btn.getAttribute('data-del'));
+        const sorted2 = session.marks.slice().sort((a,b) => a.t - b.t);
+        const target = sorted2[idx];
+        const realIdx = session.marks.findIndex(x => x.t === target.t && x.type === target.type && x.at === target.at);
+        if (realIdx >= 0) session.marks.splice(realIdx, 1);
+        renderLog();
+      });
+    });
+
+    if (shouldStick) logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  function escapeHtml(str){
+    return String(str)
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;')
+      .replaceAll("'","&#039;");
+  }
+
+  // --- Timestamp retrieval ---
+  async function getCurrentTimeSec(){
+    if (!mode) return 0;
+
+    if (mode === 'local'){
+      return player.currentTime || 0;
+    }
+
+    if (mode === 'soundcloud'){
+      if (!scWidget || !scReady) throw new Error('SoundCloud not ready');
+      return new Promise((resolve) => {
+        scWidget.getPosition((ms) => resolve((ms || 0) / 1000));
+      });
+    }
+
+    return 0;
+  }
+
+  function pushMark(type, t, text=null){
+    if (!session) return;
+    session.marks.push({ type, t: Number((t || 0).toFixed(2)), text, at: Date.now() });
+    renderLog();
+  }
+
+  async function mark(type){
+    if (!session) return;
+    try{
+      const t = await getCurrentTimeSec();
+      pushMark(type, t);
+    }catch(e){
+      alert('Load a track first.');
+    }
+  }
+
+  // --- Notes ---
+  async function lockNoteTimestamp(){
+    if (!session) return alert('Load a track first.');
+    try{
+      const t = await getCurrentTimeSec();
+      pendingNoteTime = t;
+      lockedAtEl.textContent = fmtTime(t);
+      composer.classList.remove('hidden');
+      noteText.value = '';
+      noteText.focus();
+    }catch(e){
+      alert('Load a track first.');
+    }
+  }
+
+  function cancelNote(){
+    pendingNoteTime = null;
+    composer.classList.add('hidden');
+    noteText.value = '';
+  }
+
+  function submitNote(){
+    if (pendingNoteTime == null) return;
+    const txt = (noteText.value || '').trim();
+    if (!txt) return alert('Type a note first.');
+    pushMark('note', pendingNoteTime, txt);
+    cancelNote();
+  }
+
+  // --- Local player setup + visualizer ---
+  function clearViz(){
+    const W = viz.width, H = viz.height;
+    vizCtx.clearRect(0,0,W,H);
+    vizCtx.globalAlpha = 0.25;
+    vizCtx.fillStyle = "#ffffff";
+    vizCtx.fillRect(0, H-2, W, 1);
+    vizCtx.globalAlpha = 1;
+  }
+
+  function resizeViz(){
+    const rect = viz.getBoundingClientRect();
+    viz.width = Math.max(320, Math.floor(rect.width * devicePixelRatio));
+    viz.height = Math.floor(120 * devicePixelRatio);
+    clearViz();
+  }
+  window.addEventListener('resize', () => { if (mode === 'local') resizeViz(); });
+
+  function stopVisualizer(){
+    if (vizRaf) cancelAnimationFrame(vizRaf);
+    vizRaf = null;
+    // ✅ Do NOT disconnect sourceNode; it can break audio playback on re-use.
+    analyser = null;
+    dataArray = null;
+    clearViz();
+  }
+
+  async function ensureAudioContext(){
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (!sourceNode){
+      // Create exactly once per <audio> element
+      sourceNode = audioCtx.createMediaElementSource(player);
+    }
+    if (audioCtx.state === 'suspended'){
+      try { await audioCtx.resume(); } catch(e) {}
+    }
+  }
+
+  function startVisualizer(){
+    stopVisualizer();
+    resizeViz();
+
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+    dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+    // Reconnect graph safely
+    try { sourceNode.disconnect(); } catch(e) {}
+    try { analyser.disconnect(); } catch(e) {}
+    sourceNode.connect(analyser);
+    analyser.connect(audioCtx.destination);
+
+    const W = viz.width, H = viz.height;
+
+    function draw(){
+      if (!analyser || !dataArray) return;
+      analyser.getByteFrequencyData(dataArray);
+
+      vizCtx.clearRect(0,0,W,H);
+
+      const barCount = dataArray.length;
+      const barW = W / barCount;
+
+const grad = vizCtx.createLinearGradient(0, 0, W, 0);
+grad.addColorStop(0.00, "#7c3aed");  // purple
+grad.addColorStop(0.35, "#22d3ee");  // cyan
+grad.addColorStop(0.70, "#a3ff12");  // neon green
+grad.addColorStop(1.00, "#ff4fd8");  // pink
+
+vizCtx.fillStyle = grad;
+vizCtx.globalAlpha = 0.95;
+
+// subtle glow
+vizCtx.shadowColor = "rgba(34,211,238,0.45)";
+vizCtx.shadowBlur = Math.max(6, W / 220);
+
+
+      for (let i=0;i<barCount;i++){
+        const v = dataArray[i] / 255;
+        const bh = v * (H * 0.85);
+        const x = i * barW;
+        const y = H - bh;
+        vizCtx.fillRect(x + barW*0.15, y, barW*0.7, bh);
+      }
+vizCtx.shadowBlur = 0;
+    vizCtx.shadowColor = "transparent";
+      vizCtx.globalAlpha = 0.18;
+      vizCtx.fillStyle = "#ffffff";
+      vizCtx.fillRect(0, H-2, W, 1);
+      vizCtx.globalAlpha = 1;
+
+      vizRaf = requestAnimationFrame(draw);
+    }
+
+    vizRaf = requestAnimationFrame(draw);
+  }
+
+  // Always handle visualizer when local audio plays (works across file changes)
+  player.addEventListener('play', async () => {
+    if (mode !== 'local') return;
+    await ensureAudioContext();
+    startVisualizer();
+  });
+
+  // --- SoundCloud setup ---
+  function resetSoundCloud(){
+    scReady = false;
+    scDurationMs = null;
+    if (scPollTimer) clearInterval(scPollTimer);
+    scPollTimer = null;
+    scWidget = null;
+    scFrame.src = '';
+    durEl.textContent = '—';
+    nowEl.textContent = '0:00';
+  }
+
+  function makeSCEmbedUrl(trackUrl){
+    const base = 'https://w.soundcloud.com/player/';
+    const params = new URLSearchParams({
+      url: trackUrl,
+      auto_play: 'false',
+      hide_related: 'true',
+      show_comments: 'false',
+      show_user: 'true',
+      show_reposts: 'false',
+      visual: 'false'
+    });
+    return `${base}?${params.toString()}`;
+  }
+
+  // --- Screen 1 flow ---
+  chooseUpload.addEventListener('click', () => {
+    uploadBox.classList.remove('hidden');
+    scBox.classList.add('hidden');
+    fileInput.click();
+  });
+
+  chooseSC.addEventListener('click', () => {
+    scBox.classList.remove('hidden');
+    uploadBox.classList.add('hidden');
+    scUrl.focus();
+  });
+
+  fileInput.addEventListener('change', () => {
+    const f = fileInput.files && fileInput.files[0];
+    if (!f) return;
+
+    mode = 'local';
+    newSession();
+    session.trackLabel = f.name;
+    updateHeader();
+
+    localWrap.classList.remove('hidden');
+    scWrap.classList.add('hidden');
+    resetSoundCloud();
+
+    const url = URL.createObjectURL(f);
+    player.src = url;
+    player.load(); // ✅ ensure fresh load
+
+    gotoScreen(2);
+
+    player.onloadedmetadata = () => {
+      durEl.textContent = isFinite(player.duration) ? fmtTime(player.duration) : '—';
+    };
+    player.ontimeupdate = () => {
+      nowEl.textContent = fmtTime(player.currentTime || 0);
+    };
+
+    player.play().catch(()=>{});
+  });
+
+  loadSCBtn.addEventListener('click', () => {
+    const url = (scUrl.value || '').trim();
+    if (!url) return alert('Paste a SoundCloud track URL first.');
+
+    mode = 'soundcloud';
+    newSession();
+
+    scWrap.classList.remove('hidden');
+    localWrap.classList.add('hidden');
+
+    stopVisualizer();
+    player.pause();
+    player.src = '';
+    player.load(); // ✅ reset local element
+
+    resetSoundCloud();
+    scFrame.src = makeSCEmbedUrl(url);
+    scWidget = SC.Widget(scFrame);
+
+    scWidget.bind(SC.Widget.Events.READY, () => {
+      scReady = true;
+
+      scWidget.getDuration((ms) => {
+        scDurationMs = (typeof ms === 'number') ? ms : null;
+        if (scDurationMs != null) durEl.textContent = fmtTime(scDurationMs / 1000);
+      });
+
+      scWidget.getCurrentSound((sound) => {
+        session.trackLabel = sound?.title ? sound.title : 'SoundCloud track';
+        updateHeader();
+      });
+
+      scPollTimer = setInterval(() => {
+        if (!scWidget || !scReady) return;
+        scWidget.isPaused((paused) => {
+          if (paused) return;
+          scWidget.getPosition((ms) => {
+            nowEl.textContent = fmtTime((ms || 0) / 1000);
+          });
+        });
+      }, 400);
+
+      gotoScreen(2);
+    });
+
+    scWidget.bind(SC.Widget.Events.ERROR, () => {
+      alert('Could not load that SoundCloud link. Try a public/unlisted track URL (not a playlist).');
+      resetSoundCloud();
+    });
+  });
+
+  // --- Screen 2 controls ---
+  backBtn.addEventListener('click', () => {
+    if (!confirmLoseSessionIfNeeded()) return;
+
+    stopVisualizer();
+    resetSoundCloud();
+
+    player.pause();
+    player.src = '';
+    player.load(); // ✅ hard reset for next file
+
+    fileInput.value = '';
+    scUrl.value = '';
+
+    pendingNoteTime = null;
+    cancelNote();
+
+    mode = null;
+    session = null;
+
+    nowEl.textContent = '0:00';
+    durEl.textContent = '—';
+    trackLine.textContent = 'Track: —';
+    logEl.innerHTML = `<div class="small">No session loaded.</div>`;
+
+    uploadBox.classList.add('hidden');
+    scBox.classList.add('hidden');
+
+    gotoScreen(1);
+  });
+
+  hateBtn.addEventListener('click', () => mark('hate'));
+  dislikeBtn.addEventListener('click', () => mark('dislike'));
+  likeBtn.addEventListener('click', () => mark('like'));
+  loveBtn.addEventListener('click', () => mark('love'));
+
+  // ✅ Hotkeys disabled while typing in input/textarea/contenteditable
+  window.addEventListener('keydown', (e) => {
+    if (e.repeat) return;
+    if (!screen2.classList.contains('active')) return;
+
+    const t = e.target;
+    const tag = (t && t.tagName) ? t.tagName.toLowerCase() : '';
+    const isTyping = tag === 'input' || tag === 'textarea' || (t && t.isContentEditable);
+    if (isTyping) return;
+
+    const k = e.key.toLowerCase();
+    if (k === 'h') mark('hate');
+    if (k === 'd') mark('dislike');
+    if (k === 'l') mark('like');
+    if (k === 'v') mark('love');
+    if (k === 'n') lockNoteTimestamp();
+  });
+
+  noteBtn.addEventListener('click', lockNoteTimestamp);
+  cancelNoteBtn.addEventListener('click', cancelNote);
+  submitNoteBtn.addEventListener('click', submitNote);
+
+  // --- Export / Copy / Clear ---
+  exportBtn.addEventListener('click', () => {
+    if (!session) return alert('No session to export.');
+    const rows = [['listener','mode','track','type','time_sec','time_mmss','note_text','marked_at_iso']];
+    const sorted = session.marks.slice().sort((a,b) => a.t - b.t);
+    sorted.forEach(m => rows.push([
+      session.listener || '',
+      session.mode || '',
+      session.trackLabel || '',
+      m.type,
+      String(m.t),
+      fmtTime(m.t),
+      m.type === 'note' ? (m.text || '') : '',
+      new Date(m.at).toISOString()
+    ]));
+
+    const csv = rows.map(r => r.map(v => {
+      const s = String(v ?? '');
+      return /[",\n]/.test(s) ? `"${s.replaceAll('"','""')}"` : s;
+    }).join(',')).join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    const safe = (session.trackLabel || 'feedback').replace(/[^\w\-]+/g, '_').slice(0,60);
+    a.download = `${safe}_timestamps.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  });
+
+  copyBtn.addEventListener('click', async () => {
+    if (!session) return alert('No session to copy.');
+    const sorted = session.marks.slice().sort((a,b) => a.t - b.t);
+    const lines = sorted.map(m => {
+      const t = fmtTime(m.t);
+      if (m.type === 'note') return `${t} 📝 ${m.text}`;
+      const em = m.type === 'hate' ? '😡' : m.type === 'dislike' ? '👎' : m.type === 'like' ? '👍' : '❤️';
+      return `${t} ${em} ${m.type}`;
+    });
+    const head = [
+      `Listener: ${session.listener || '—'}`,
+      `Mode: ${session.mode === 'local' ? 'Upload' : 'SoundCloud'}`,
+      `Track: ${session.trackLabel || '—'}`,
+      ''
+    ].join('\n');
+    const text = head + lines.join('\n');
+
+    try { await navigator.clipboard.writeText(text); alert('Copied.'); }
+    catch(e) { prompt('Copy this:', text); }
+  });
+
+  clearBtn.addEventListener('click', () => {
+    if (!session) return;
+    if (!confirm('Clear the current session log?')) return;
+    session.marks = [];
+    renderLog();
+  });
+
+  // --- Summary ---
+  function buildSummaryText(){
+    if (!session) return 'No session loaded.';
+
+    const counts = { hate:0, dislike:0, like:0, love:0, note:0 };
+    session.marks.forEach(m => { if (counts[m.type] != null) counts[m.type]++; });
+
+    const sorted = session.marks.slice().sort((a,b) => a.t - b.t);
+    const lines = sorted.map(m => {
+      const t = fmtTime(m.t);
+      if (m.type === 'note') return `${t} 📝 ${m.text}`;
+      const em = m.type === 'hate' ? '😡' : m.type === 'dislike' ? '👎' : m.type === 'like' ? '👍' : '❤️';
+      return `${t} ${em} ${m.type}`;
+    });
+
+    return [
+      `Listener: ${session.listener || '—'}`,
+      `Mode: ${session.mode === 'local' ? 'Upload' : 'SoundCloud'}`,
+      `Track: ${session.trackLabel || '—'}`,
+      `Created: ${new Date(session.createdAt).toLocaleString()}`,
+      '',
+      `Totals: 😡 ${counts.hate}  👎 ${counts.dislike}  👍 ${counts.like}  ❤️ ${counts.love}  📝 ${counts.note}`,
+      '',
+      'Timeline:',
+      ...lines
+    ].join('\n');
+  }
+
+  function openSummary(){
+    summaryBox.textContent = buildSummaryText();
+    modalOverlay.classList.add('active');
+  }
+  function closeSummary(){
+    modalOverlay.classList.remove('active');
+  }
+
+  summaryBtn.addEventListener('click', openSummary);
+  closeModalBtn.addEventListener('click', closeSummary);
+  modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeSummary(); });
+
+  copySummaryBtn.addEventListener('click', async () => {
+    const text = buildSummaryText();
+    try { await navigator.clipboard.writeText(text); alert('Summary copied.'); }
+    catch(e) { prompt('Copy summary:', text); }
+  });
+
+  // Initial log state
+  logEl.innerHTML = `<div class="small">No session loaded.</div>`;
+})();
+</script>
+</body>
+</html>
