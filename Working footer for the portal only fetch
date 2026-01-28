@@ -1,0 +1,21 @@
+<script>
+(async function(){
+  const slug = location.pathname.replace(/^\/pages\//,'').replace(/\/$/,'');
+  if (slug !== "track-feedback") return;
+
+  const url = "https://raw.githubusercontent.com/charlesmoy3/djmoyportal/refs/heads/main/Feedback%20App";
+
+  const res = await fetch(url, { cache: "no-store" });
+  const html = await res.text();
+
+  const container = document.createElement("div");
+  container.innerHTML = html;
+  document.body.appendChild(container);
+
+  container.querySelectorAll("script").forEach(sc=>{
+    const run = document.createElement("script");
+    if (sc.textContent) run.textContent = sc.textContent;
+    document.body.appendChild(run);
+  });
+})();
+</script>
