@@ -3,23 +3,23 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>DJ Moy – Timestamp Feedback (V2.1)</title>
- <style>
+  <title>DJ Moy – Timestamp Feedback (V2.2)</title>
+
+  <style>
   :root{
-    /* === DJ Moy Portal theme tokens (with slightly higher contrast for logs) === */
     --bg-dark:#0a0118;
     --bg-gradient-start:#1a0b2e;
     --bg-gradient-end:#0f0520;
 
-    --card-glass: rgba(20, 15, 40, 0.78);          /* a touch stronger for readability */
+    --card-glass: rgba(20, 15, 40, 0.78);
     --card-border: rgba(147, 112, 219, 0.34);
 
     --text:#ffffff;
     --muted: rgba(255,255,255,0.72);
     --muted2: rgba(255,255,255,0.52);
 
-    --accent:#a855f7;     /* portal purple */
-    --accent2:#06b6d4;    /* portal cyan */
+    --accent:#a855f7;
+    --accent2:#06b6d4;
     --warn:#ef4444;
 
     --glow-purple: rgba(168, 85, 247, 0.42);
@@ -28,10 +28,6 @@
     --shadow: 0 20px 40px rgba(0,0,0,0.55);
     --radius: 18px;
 
-    --line: rgba(255,255,255,0.11);
-    --line-strong: rgba(168, 85, 247, 0.28);
-
-    /* App panels (higher contrast than card-glass) */
     --panel: rgba(0,0,0,0.26);
     --panel2: rgba(0,0,0,0.38);
 
@@ -56,7 +52,6 @@
     width:100%;
   }
 
-  /* Animated starry background (portal style) */
   body::before{
     content:"";
     position:fixed;
@@ -91,7 +86,6 @@
     50%{ opacity:0.8; }
   }
 
-  /* Glow overlay (portal style) */
   body::after{
     content:"";
     position:fixed;
@@ -117,6 +111,59 @@
   .card{
     position:relative;
     z-index:1;
+    background: transparent;
+    border:none;
+    border-radius: var(--radius);
+    padding:0;
+    box-shadow:none;
+    backdrop-filter:none;
+  }
+
+  .screen{ display:none; }
+  .screen.active{ display:block; }
+
+  /* ===== Landing Hero ===== */
+  .hero{
+    min-height: calc(100vh - 60px);
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    gap:14px;
+    padding: 48px 14px;
+  }
+
+  .heroTitle{
+    font-size: clamp(44px, 6vw, 78px);
+    line-height: 1.05;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+
+  .heroSub{
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.55;
+    max-width: 68ch;
+    margin: 0;
+  }
+
+  .heroBtns{
+    margin-top: 12px;
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+
+  .heroBtns button{
+    min-width: 260px;
+    border-radius: 999px;
+  }
+
+  /* ===== Panel container (player screen) ===== */
+  .panelCard{
     background: var(--card-glass);
     border:1px solid var(--card-border);
     border-radius: var(--radius);
@@ -124,12 +171,6 @@
     box-shadow: var(--shadow);
     backdrop-filter: blur(14px);
   }
-
-  h1{ font-size:18px; margin:0 0 8px; }
-  .sub{ color:var(--muted); font-size:13px; margin-bottom:12px; }
-
-  .screen{ display:none; }
-  .screen.active{ display:block; }
 
   .row{ display:grid; gap:12px; grid-template-columns:1fr; }
   @media (min-width:900px){ .row{ grid-template-columns:1.2fr .8fr; } }
@@ -154,9 +195,6 @@
   }
 
   .small{ color:var(--muted); font-size:12px; }
-
-  .bigChoice{ display:grid; gap:10px; grid-template-columns:1fr; }
-  @media (min-width:640px){ .bigChoice{ grid-template-columns:1fr 1fr; } }
 
   button{
     border:1px solid rgba(255,255,255,0.10);
@@ -187,23 +225,6 @@
   button.danger{
     background: linear-gradient(180deg, rgba(168,85,247,0.16), rgba(0,0,0,0));
   }
-
-  .input{
-    width:100%;
-    border:1px solid rgba(255,255,255,0.10);
-    border-radius:12px;
-    padding:12px;
-    background: rgba(0,0,0,0.30);
-    color:var(--text);
-    outline:none;
-  }
-
-  .input:focus{
-    border-color: rgba(6,182,212,0.35);
-    box-shadow: 0 0 0 3px rgba(6,182,212,0.12);
-  }
-
-  .field{ display:grid; gap:6px; margin-bottom:12px; }
 
   .hr{ height:1px; background:rgba(255,255,255,0.08); margin:12px 0; }
 
@@ -251,7 +272,6 @@
     padding:8px 6px;
     border-bottom: 1px dashed rgba(255,255,255,0.10);
   }
-
   .item:last-child{ border-bottom:none; }
 
   .tag{
@@ -283,7 +303,6 @@
   .topBar{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
   .topBarLeft{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
 
-  /* Note composer */
   .composer{
     border:1px solid rgba(255,255,255,0.10);
     border-radius:14px;
@@ -356,149 +375,143 @@
     line-height:1.35;
   }
 
-/* ===========================
-   FOURTHWALL OVERRIDES
-   Enable when this file is fetched by Fourthwall
-   =========================== */
+  /* ===========================
+     FOURTHWALL OVERRIDES
+     =========================== */
+  header,
+  footer,
+  [data-testid="site-header"],
+  [data-testid="site-footer"]{
+    display: none !important;
+  }
 
-header,
-footer,
-[data-testid="site-header"],
-[data-testid="site-footer"]{
-  display: none !important;
+  main,
+  body{
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .filePicker{
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
 }
 
-/* Remove extra page padding FW sometimes adds */
-main,
-body{
-  padding: 0 !important;
-  margin: 0 !important;
-}
-
-</style>
-
+  </style>
 </head>
+
 <body>
   <div id="djmoyFeedbackApp">
-  <div class="wrap">
-    <div class="card">
-      <h1>Timestamp Feedback</h1>
-      <div class="sub">Listener taps reactions (😡 👎 👍 ❤️) or adds a time-locked note. You export the session at the end.</div>
+    <div class="wrap">
+      <div class="card">
 
-      <!-- SCREEN 1: Choose mode -->
-      <div id="screen1" class="screen active">
-        <div class="field">
-          <div class="small">Listener name (optional, but helpful):</div>
-          <input id="listenerName" class="input" type="text" placeholder="e.g., Anna / Friend / Client" />
-        </div>
+        <!-- SCREEN 0: Landing -->
+        <div id="screen0" class="screen active">
+          <div class="hero">
+            <h1 class="heroTitle">Timestamp Feedback</h1>
+            <p class="heroSub">
+              Get precise feedback from anyone — even if they don’t know mixing terms.
+              Reactions + notes are saved with exact timestamps.
+            </p>
 
-        <div class="hr"></div>
-
-        <div class="small" style="margin-bottom:10px;">How do you want to play the song?</div>
-
-        <div class="bigChoice">
-          <button id="chooseUpload" class="good">📁 Upload audio file (local)</button>
-          <button id="chooseSC" class="secondary">🔗 Use SoundCloud link</button>
-        </div>
-
-        <div id="uploadBox" class="hidden" style="margin-top:12px;">
-          <div class="small">Pick an audio file from this device:</div>
-          <input id="file" class="input" type="file" accept="audio/*" />
-          <div class="small" style="margin-top:8px;">Nothing uploads anywhere. It plays locally.</div>
-        </div>
-
-        <div id="scBox" class="hidden" style="margin-top:12px;">
-          <div class="small">Paste a SoundCloud track link:</div>
-          <input id="scUrl" class="input" type="text" placeholder="https://soundcloud.com/artist/track" />
-          <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
-            <button id="loadSCBtn" class="secondary" style="flex:1; min-width:160px;">Load SoundCloud</button>
-          </div>
-          <div class="small" style="margin-top:8px;">
-            SoundCloud plays in an embedded player. We timestamp using SoundCloud’s widget API.
-          </div>
-        </div>
-      </div>
-
-      <!-- SCREEN 2: Player + Controls -->
-      <div id="screen2" class="screen">
-        <div class="topBar">
-          <div class="topBarLeft">
-  <button id="backBtn" class="secondary">← Back</button>
-</div>
-          <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <button id="summaryBtn" class="secondary">View Summary</button>
-            <button id="exportBtn" class="secondary">Export CSV</button>
-            <button id="copyBtn" class="secondary">Copy Log</button>
-            <button id="clearBtn" class="secondary danger">Clear Session</button>
+            <div class="heroBtns">
+              <button id="startUpload" class="good">📁 Upload audio file</button>
+              <button id="startSC" class="secondary">🔗 Use SoundCloud link</button>
+            </div>
           </div>
         </div>
 
-        <div class="hr"></div>
+        <!-- SCREEN 2: Player + Controls -->
+        <div id="screen2" class="screen">
+          <div class="panelCard">
 
-        <div class="row">
-          <div>
-            <div class="meter">
-              <div id="trackLine" class="small">Track: —</div>
-              <div class="time">
-                <span>Now: <span id="now">0:00</span></span>
-                <span>Length: <span id="dur">—</span></span>
+            <div class="topBar">
+              <div class="topBarLeft">
+                <button id="backBtn" class="secondary">← Back</button>
+              </div>
+
+              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button id="summaryBtn" class="secondary">View Summary</button>
+                <button id="exportBtn" class="secondary">Export CSV</button>
+                <button id="copyBtn" class="secondary">Copy Log</button>
+                <button id="clearBtn" class="secondary danger">Clear Session</button>
               </div>
             </div>
 
-            <div class="playerCard" style="margin-top:12px;">
-              <!-- Local audio -->
-              <div id="localPlayerWrap">
-                <canvas id="viz" class="viz"></canvas>
-                <audio id="player" controls></audio>
-              </div>
+            <!-- Hidden: used to open OS file picker when user clicks Upload -->
+           <input id="file" type="file" accept="audio/*" class="filePicker" />
 
-              <!-- SoundCloud player -->
-              <div id="scPlayerWrap" class="hidden">
-                <iframe id="scFrame" allow="autoplay" style="width:100%; height:166px; border:0; border-radius:12px;"></iframe>
-              </div>
-            </div>
-
-            <div class="small" style="margin: 10px 0 8px;">Reactions</div>
-            <div class="reactions">
-              <button id="hateBtn" class="danger">😡 Hate</button>
-              <button id="dislikeBtn" class="danger">👎 Dislike</button>
-              <button id="likeBtn" class="good">👍 Like</button>
-              <button id="loveBtn" class="good">❤️ Love</button>
-            </div>
 
             <div class="hr"></div>
 
-            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-              <button id="noteBtn" class="secondary" style="flex:1; min-width:160px;">📝 Note (lock timestamp)</button>
-              <div class="small" id="noteHint">Tap to lock the time, then type.</div>
-            </div>
+            <div class="row">
+              <div>
+                <div class="meter">
+                  <div id="trackLine" class="small">Track: —</div>
+                  <div class="time">
+                    <span>Now: <span id="now">0:00</span></span>
+                    <span>Length: <span id="dur">—</span></span>
+                  </div>
+                </div>
 
-            <div id="composer" class="composer hidden" style="margin-top:10px;">
-              <div class="small">Note locked at: <b id="lockedAt">—</b></div>
-              <textarea id="noteText" placeholder="Type your note here..."></textarea>
-              <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                <button id="submitNoteBtn" class="good" style="flex:1; min-width:160px;">Submit Note</button>
-                <button id="cancelNoteBtn" class="secondary" style="flex:1; min-width:160px;">Cancel</button>
+                <div class="playerCard" style="margin-top:12px;">
+                  <!-- Local audio -->
+                  <div id="localPlayerWrap">
+                    <canvas id="viz" class="viz"></canvas>
+                    <audio id="player" controls></audio>
+                  </div>
+
+                  <!-- SoundCloud player -->
+                  <div id="scPlayerWrap" class="hidden">
+                    <iframe id="scFrame" allow="autoplay" style="width:100%; height:166px; border:0; border-radius:12px;"></iframe>
+                  </div>
+                </div>
+
+                <div class="small" style="margin: 10px 0 8px;">Reactions</div>
+                <div class="reactions">
+                  <button id="hateBtn" class="danger">😡 Hate</button>
+                  <button id="dislikeBtn" class="danger">👎 Dislike</button>
+                  <button id="likeBtn" class="good">👍 Like</button>
+                  <button id="loveBtn" class="good">❤️ Love</button>
+                </div>
+
+                <div class="hr"></div>
+
+                <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                  <button id="noteBtn" class="secondary" style="flex:1; min-width:160px;">📝 Note (lock timestamp)</button>
+                  <div class="small" id="noteHint">Tap to lock the time, then type.</div>
+                </div>
+
+                <div id="composer" class="composer hidden" style="margin-top:10px;">
+                  <div class="small">Note locked at: <b id="lockedAt">—</b></div>
+                  <textarea id="noteText" placeholder="Type your note here..."></textarea>
+                  <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button id="submitNoteBtn" class="good" style="flex:1; min-width:160px;">Submit Note</button>
+                    <button id="cancelNoteBtn" class="secondary" style="flex:1; min-width:160px;">Cancel</button>
+                  </div>
+                </div>
+
+                <div class="small" style="margin-top:10px;">
+                  Keyboard shortcuts (optional): H = hate, D = dislike, L = like, V = love.
+                </div>
               </div>
-            </div>
 
-            <div class="small" style="margin-top:10px;">
-              Keyboard shortcuts (optional): H = hate, D = dislike, L = like, V = love. 
-            </div>
-          </div>
+              <div>
+                <div class="small" style="margin-bottom:8px;">Session log (auto-updates):</div>
+                <div id="log" class="log"></div>
+                <div class="small" style="margin-top:10px;">
+                  Export/copy when you’re done.
+                </div>
+              </div>
 
-          <div>
-            <div class="small" style="margin-bottom:8px;">Session log (auto-updates):</div>
-            <div id="log" class="log"></div>
-            <div class="small" style="margin-top:10px;">
-              This v2.1 does <b>not</b> auto-save across refresh — export/copy when you’re done.
             </div>
           </div>
         </div>
-      </div>
 
+      </div>
     </div>
-  </div>
   </div>
 
   <!-- Summary Modal -->
@@ -519,640 +532,652 @@ body{
   <!-- SoundCloud Widget API -->
   <script src="https://w.soundcloud.com/player/api.js"></script>
 
-<script>
-(() => {
-  // Screens
-  const screen1 = document.getElementById('screen1');
-  const screen2 = document.getElementById('screen2');
+  <script>
+  (() => {
+    // Screens
+    const screen0 = document.getElementById('screen0');
+    const screen2 = document.getElementById('screen2');
 
-  // Screen1 inputs
-  const listenerNameInput = document.getElementById('listenerName');
-  const chooseUpload = document.getElementById('chooseUpload');
-  const chooseSC = document.getElementById('chooseSC');
-  const uploadBox = document.getElementById('uploadBox');
-  const scBox = document.getElementById('scBox');
-  const fileInput = document.getElementById('file');
-  const scUrl = document.getElementById('scUrl');
-  const loadSCBtn = document.getElementById('loadSCBtn');
+    // Landing buttons (Screen 0)
+    const startUpload = document.getElementById('startUpload');
+    const startSC = document.getElementById('startSC');
 
-  // Screen2 UI
-  const backBtn = document.getElementById('backBtn');
-  const trackLine = document.getElementById('trackLine');
-  const nowEl = document.getElementById('now');
-  const durEl = document.getElementById('dur');
-  const logEl = document.getElementById('log');
+    // Hidden local file input (Screen 2)
+    const fileInput = document.getElementById('file');
 
-  // Local player + viz
-  const localWrap = document.getElementById('localPlayerWrap');
-  const player = document.getElementById('player');
-  const viz = document.getElementById('viz');
-  const vizCtx = viz.getContext('2d');
+    // Screen2 UI
+    const backBtn = document.getElementById('backBtn');
+    const trackLine = document.getElementById('trackLine');
+    const nowEl = document.getElementById('now');
+    const durEl = document.getElementById('dur');
+    const logEl = document.getElementById('log');
 
-  // SoundCloud player
-  const scWrap = document.getElementById('scPlayerWrap');
-  const scFrame = document.getElementById('scFrame');
+    // Local player + viz
+    const localWrap = document.getElementById('localPlayerWrap');
+    const player = document.getElementById('player');
+    const viz = document.getElementById('viz');
+    const vizCtx = viz.getContext('2d');
 
-  // Buttons
-  const hateBtn = document.getElementById('hateBtn');
-  const dislikeBtn = document.getElementById('dislikeBtn');
-  const likeBtn = document.getElementById('likeBtn');
-  const loveBtn = document.getElementById('loveBtn');
+    // SoundCloud player
+    const scWrap = document.getElementById('scPlayerWrap');
+    const scFrame = document.getElementById('scFrame');
 
-  const noteBtn = document.getElementById('noteBtn');
-  const composer = document.getElementById('composer');
-  const lockedAtEl = document.getElementById('lockedAt');
-  const noteText = document.getElementById('noteText');
-  const submitNoteBtn = document.getElementById('submitNoteBtn');
-  const cancelNoteBtn = document.getElementById('cancelNoteBtn');
+    // Buttons
+    const hateBtn = document.getElementById('hateBtn');
+    const dislikeBtn = document.getElementById('dislikeBtn');
+    const likeBtn = document.getElementById('likeBtn');
+    const loveBtn = document.getElementById('loveBtn');
 
-  const exportBtn = document.getElementById('exportBtn');
-  const copyBtn = document.getElementById('copyBtn');
-  const clearBtn = document.getElementById('clearBtn');
+    const noteBtn = document.getElementById('noteBtn');
+    const composer = document.getElementById('composer');
+    const lockedAtEl = document.getElementById('lockedAt');
+    const noteText = document.getElementById('noteText');
+    const submitNoteBtn = document.getElementById('submitNoteBtn');
+    const cancelNoteBtn = document.getElementById('cancelNoteBtn');
 
-  // Summary modal
-  const summaryBtn = document.getElementById('summaryBtn');
-  const modalOverlay = document.getElementById('modalOverlay');
-  const closeModalBtn = document.getElementById('closeModalBtn');
-  const copySummaryBtn = document.getElementById('copySummaryBtn');
-  const summaryBox = document.getElementById('summaryBox');
+    const exportBtn = document.getElementById('exportBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const clearBtn = document.getElementById('clearBtn');
 
-  // State
-  let mode = null; // 'local' | 'soundcloud'
-  let session = null;
+    // Summary modal
+    const summaryBtn = document.getElementById('summaryBtn');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const copySummaryBtn = document.getElementById('copySummaryBtn');
+    const summaryBox = document.getElementById('summaryBox');
 
-  // SoundCloud widget state
-  let scWidget = null;
-  let scReady = false;
-  let scDurationMs = null;
-  let scPollTimer = null;
+    // State
+    let mode = null; // 'local' | 'soundcloud'
+    let session = null;
+    let listenerName = null;
 
-  // Note lock state
-  let pendingNoteTime = null;
+    // SoundCloud widget state
+    let scWidget = null;
+    let scReady = false;
+    let scDurationMs = null;
+    let scPollTimer = null;
 
-  // Visualizer state (IMPORTANT: createMediaElementSource only once per audio element)
-  let audioCtx = null;
-  let sourceNode = null;
-  let analyser = null;
-  let dataArray = null;
-  let vizRaf = null;
+    // Note lock state
+    let pendingNoteTime = null;
 
-  function pad2(n){ return String(n).padStart(2,'0'); }
-  function fmtTime(sec){
-    sec = Math.max(0, Number(sec) || 0);
-    const m = Math.floor(sec / 60);
-    const s = Math.floor(sec % 60);
-    return `${m}:${pad2(s)}`;
+    // Visualizer state
+    let audioCtx = null;
+    let sourceNode = null;
+    let analyser = null;
+    let dataArray = null;
+    let vizRaf = null;
+
+    function pad2(n){ return String(n).padStart(2,'0'); }
+    function fmtTime(sec){
+  sec = Math.max(0, Number(sec) || 0);
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return `${m}:${pad2(s)}`;
+}
+
+// ✅ SoundCloud title via oEmbed (reliable)
+async function resolveSoundCloudTitle(url){
+  try{
+    const oembed = `https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(url)}`;
+    const res = await fetch(oembed);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data?.title || null;
+  } catch(e){
+    return null;
   }
+}
 
-  function newSession(){
-    session = {
-      createdAt: Date.now(),
-      listener: (listenerNameInput.value || '').trim() || null,
-      mode,
-      trackLabel: null,
-      marks: []
-    };
-    updateHeader();
-    renderLog();
-  }
 
-  function updateHeader(){
-    trackLine.textContent = `Track: ${session?.trackLabel || '—'}`;
-  }
+    
 
-  function gotoScreen(n){
-    screen1.classList.toggle('active', n === 1);
-    screen2.classList.toggle('active', n === 2);
-  }
-
-  function confirmLoseSessionIfNeeded(){
-    if (!session || !session.marks.length) return true;
-    return confirm('Switching modes will clear the current session log. Continue?');
-  }
-
-  // --- Log rendering + autoscroll ---
-  function isNearBottom(el, thresholdPx = 40){
-    return (el.scrollHeight - el.scrollTop - el.clientHeight) < thresholdPx;
-  }
-
-  function renderLog(){
-    if (!session || !session.marks.length){
-      logEl.innerHTML = `<div class="small">No marks yet. Tap reactions or add a note.</div>`;
-      return;
+    function newSession(){
+      session = {
+        createdAt: Date.now(),
+        listener: (listenerName || '').trim() || null,
+        mode,
+        trackLabel: null,
+        marks: []
+      };
+      updateHeader();
+      renderLog();
     }
 
-    const shouldStick = isNearBottom(logEl);
-    const sorted = session.marks.slice().sort((a,b) => a.t - b.t);
+    function updateHeader(){
+      trackLine.textContent = `Track: ${session?.trackLabel || '—'}`;
+    }
 
-    logEl.innerHTML = sorted.map((m, idx) => {
-      const time = fmtTime(m.t);
-      if (m.type === 'note'){
-        const safe = escapeHtml(m.text || '');
+    function goto(id){
+      [screen0, screen2].forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function askNameOptional(){
+      const current = (listenerName || '').trim();
+      const name = window.prompt('Listener name (optional):', current);
+      if (name !== null) listenerName = name.trim();
+    }
+
+    function confirmLoseSessionIfNeeded(){
+      if (!session || !session.marks.length) return true;
+      return confirm('This will clear the current session log. Continue?');
+    }
+
+    function isNearBottom(el, thresholdPx = 40){
+      return (el.scrollHeight - el.scrollTop - el.clientHeight) < thresholdPx;
+    }
+
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'","&#039;");
+    }
+
+    function renderLog(){
+      if (!session || !session.marks.length){
+        logEl.innerHTML = `<div class="small">No marks yet. Tap reactions or add a note.</div>`;
+        return;
+      }
+
+      const shouldStick = isNearBottom(logEl);
+      const sorted = session.marks.slice().sort((a,b) => a.t - b.t);
+
+      logEl.innerHTML = sorted.map((m, idx) => {
+        const time = fmtTime(m.t);
+
+        if (m.type === 'note'){
+          const safe = escapeHtml(m.text || '');
+          return `
+            <div class="item">
+              <div>
+                <span class="tag note">📝 note</span>
+                <span class="metaLine"> @ ${time}</span>
+                <div class="noteText">${safe}</div>
+              </div>
+              <button class="secondary" data-del="${idx}">Delete</button>
+            </div>
+          `;
+        }
+
+        const map = {
+          hate:  { tag:'hate',  label:'😡 hate' },
+          dislike:{ tag:'dislike',label:'👎 dislike' },
+          like:  { tag:'like',  label:'👍 like' },
+          love:  { tag:'love',  label:'❤️ love' },
+        };
+
+        const info = map[m.type];
         return `
           <div class="item">
             <div>
-              <span class="tag note">📝 note</span>
+              <span class="tag ${info.tag}">${info.label}</span>
               <span class="metaLine"> @ ${time}</span>
-              <div class="noteText">${safe}</div>
             </div>
             <button class="secondary" data-del="${idx}">Delete</button>
           </div>
         `;
+      }).join('');
+
+      logEl.querySelectorAll('button[data-del]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.getAttribute('data-del'));
+          const sorted2 = session.marks.slice().sort((a,b) => a.t - b.t);
+          const target = sorted2[idx];
+          const realIdx = session.marks.findIndex(x => x.t === target.t && x.type === target.type && x.at === target.at);
+          if (realIdx >= 0) session.marks.splice(realIdx, 1);
+          renderLog();
+        });
+      });
+
+      if (shouldStick) logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    async function getCurrentTimeSec(){
+      if (!mode) return 0;
+
+      if (mode === 'local'){
+        return player.currentTime || 0;
       }
 
-      const map = {
-        hate:  { tag:'hate',  label:'😡 hate' },
-        dislike:{ tag:'dislike',label:'👎 dislike' },
-        like:  { tag:'like',  label:'👍 like' },
-        love:  { tag:'love',  label:'❤️ love' },
-      };
-      const info = map[m.type];
-      return `
-        <div class="item">
-          <div>
-            <span class="tag ${info.tag}">${info.label}</span>
-            <span class="metaLine"> @ ${time}</span>
-          </div>
-          <button class="secondary" data-del="${idx}">Delete</button>
-        </div>
-      `;
-    }).join('');
+      if (mode === 'soundcloud'){
+        if (!scWidget || !scReady) throw new Error('SoundCloud not ready');
+        return new Promise((resolve) => {
+          scWidget.getPosition((ms) => resolve((ms || 0) / 1000));
+        });
+      }
 
-    logEl.querySelectorAll('button[data-del]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const idx = Number(btn.getAttribute('data-del'));
-        const sorted2 = session.marks.slice().sort((a,b) => a.t - b.t);
-        const target = sorted2[idx];
-        const realIdx = session.marks.findIndex(x => x.t === target.t && x.type === target.type && x.at === target.at);
-        if (realIdx >= 0) session.marks.splice(realIdx, 1);
-        renderLog();
-      });
-    });
-
-    if (shouldStick) logEl.scrollTop = logEl.scrollHeight;
-  }
-
-  function escapeHtml(str){
-    return String(str)
-      .replaceAll('&','&amp;')
-      .replaceAll('<','&lt;')
-      .replaceAll('>','&gt;')
-      .replaceAll('"','&quot;')
-      .replaceAll("'","&#039;");
-  }
-
-  // --- Timestamp retrieval ---
-  async function getCurrentTimeSec(){
-    if (!mode) return 0;
-
-    if (mode === 'local'){
-      return player.currentTime || 0;
+      return 0;
     }
 
-    if (mode === 'soundcloud'){
-      if (!scWidget || !scReady) throw new Error('SoundCloud not ready');
-      return new Promise((resolve) => {
-        scWidget.getPosition((ms) => resolve((ms || 0) / 1000));
-      });
+    function pushMark(type, t, text=null){
+      if (!session) return;
+      session.marks.push({ type, t: Number((t || 0).toFixed(2)), text, at: Date.now() });
+      renderLog();
     }
 
-    return 0;
-  }
-
-  function pushMark(type, t, text=null){
-    if (!session) return;
-    session.marks.push({ type, t: Number((t || 0).toFixed(2)), text, at: Date.now() });
-    renderLog();
-  }
-
-  async function mark(type){
-    if (!session) return;
-    try{
-      const t = await getCurrentTimeSec();
-      pushMark(type, t);
-    }catch(e){
-      alert('Load a track first.');
+    async function mark(type){
+      if (!session) return;
+      try{
+        const t = await getCurrentTimeSec();
+        pushMark(type, t);
+      }catch(e){
+        alert('Load a track first.');
+      }
     }
-  }
 
-  // --- Notes ---
-  async function lockNoteTimestamp(){
-    if (!session) return alert('Load a track first.');
-    try{
-      const t = await getCurrentTimeSec();
-      pendingNoteTime = t;
-      lockedAtEl.textContent = fmtTime(t);
-      composer.classList.remove('hidden');
+    async function lockNoteTimestamp(){
+      if (!session) return alert('Load a track first.');
+      try{
+        const t = await getCurrentTimeSec();
+        pendingNoteTime = t;
+        lockedAtEl.textContent = fmtTime(t);
+        composer.classList.remove('hidden');
+        noteText.value = '';
+        noteText.focus();
+      }catch(e){
+        alert('Load a track first.');
+      }
+    }
+
+    function cancelNote(){
+      pendingNoteTime = null;
+      composer.classList.add('hidden');
       noteText.value = '';
-      noteText.focus();
-    }catch(e){
-      alert('Load a track first.');
     }
-  }
 
-  function cancelNote(){
-    pendingNoteTime = null;
-    composer.classList.add('hidden');
-    noteText.value = '';
-  }
-
-  function submitNote(){
-    if (pendingNoteTime == null) return;
-    const txt = (noteText.value || '').trim();
-    if (!txt) return alert('Type a note first.');
-    pushMark('note', pendingNoteTime, txt);
-    cancelNote();
-  }
-
-  // --- Local player setup + visualizer ---
-  function clearViz(){
-    const W = viz.width, H = viz.height;
-    vizCtx.clearRect(0,0,W,H);
-    vizCtx.globalAlpha = 0.25;
-    vizCtx.fillStyle = "#ffffff";
-    vizCtx.fillRect(0, H-2, W, 1);
-    vizCtx.globalAlpha = 1;
-  }
-
-  function resizeViz(){
-    const rect = viz.getBoundingClientRect();
-    viz.width = Math.max(320, Math.floor(rect.width * devicePixelRatio));
-    viz.height = Math.floor(120 * devicePixelRatio);
-    clearViz();
-  }
-  window.addEventListener('resize', () => { if (mode === 'local') resizeViz(); });
-
-  function stopVisualizer(){
-    if (vizRaf) cancelAnimationFrame(vizRaf);
-    vizRaf = null;
-    // ✅ Do NOT disconnect sourceNode; it can break audio playback on re-use.
-    analyser = null;
-    dataArray = null;
-    clearViz();
-  }
-
-  async function ensureAudioContext(){
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (!sourceNode){
-      // Create exactly once per <audio> element
-      sourceNode = audioCtx.createMediaElementSource(player);
+    function submitNote(){
+      if (pendingNoteTime == null) return;
+      const txt = (noteText.value || '').trim();
+      if (!txt) return alert('Type a note first.');
+      pushMark('note', pendingNoteTime, txt);
+      cancelNote();
     }
-    if (audioCtx.state === 'suspended'){
-      try { await audioCtx.resume(); } catch(e) {}
-    }
-  }
 
-  function startVisualizer(){
-    stopVisualizer();
-    resizeViz();
-
-    analyser = audioCtx.createAnalyser();
-    analyser.fftSize = 256;
-    dataArray = new Uint8Array(analyser.frequencyBinCount);
-
-    // Reconnect graph safely
-    try { sourceNode.disconnect(); } catch(e) {}
-    try { analyser.disconnect(); } catch(e) {}
-    sourceNode.connect(analyser);
-    analyser.connect(audioCtx.destination);
-
-    const W = viz.width, H = viz.height;
-
-    function draw(){
-      if (!analyser || !dataArray) return;
-      analyser.getByteFrequencyData(dataArray);
-
+    function clearViz(){
+      const W = viz.width, H = viz.height;
       vizCtx.clearRect(0,0,W,H);
-
-      const barCount = dataArray.length;
-      const barW = W / barCount;
-
-const grad = vizCtx.createLinearGradient(0, 0, W, 0);
-grad.addColorStop(0.00, "#7c3aed");  // purple
-grad.addColorStop(0.35, "#22d3ee");  // cyan
-grad.addColorStop(0.70, "#a3ff12");  // neon green
-grad.addColorStop(1.00, "#ff4fd8");  // pink
-
-vizCtx.fillStyle = grad;
-vizCtx.globalAlpha = 0.95;
-
-// subtle glow
-vizCtx.shadowColor = "rgba(34,211,238,0.45)";
-vizCtx.shadowBlur = Math.max(6, W / 220);
-
-
-      for (let i=0;i<barCount;i++){
-        const v = dataArray[i] / 255;
-        const bh = v * (H * 0.85);
-        const x = i * barW;
-        const y = H - bh;
-        vizCtx.fillRect(x + barW*0.15, y, barW*0.7, bh);
-      }
-vizCtx.shadowBlur = 0;
-    vizCtx.shadowColor = "transparent";
-      vizCtx.globalAlpha = 0.18;
+      vizCtx.globalAlpha = 0.25;
       vizCtx.fillStyle = "#ffffff";
       vizCtx.fillRect(0, H-2, W, 1);
       vizCtx.globalAlpha = 1;
+    }
+
+    function resizeViz(){
+      const rect = viz.getBoundingClientRect();
+      viz.width = Math.max(320, Math.floor(rect.width * devicePixelRatio));
+      viz.height = Math.floor(120 * devicePixelRatio);
+      clearViz();
+    }
+    window.addEventListener('resize', () => { if (mode === 'local') resizeViz(); });
+
+    function stopVisualizer(){
+      if (vizRaf) cancelAnimationFrame(vizRaf);
+      vizRaf = null;
+      analyser = null;
+      dataArray = null;
+      clearViz();
+    }
+
+    async function ensureAudioContext(){
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (!sourceNode){
+        sourceNode = audioCtx.createMediaElementSource(player);
+      }
+      if (audioCtx.state === 'suspended'){
+        try { await audioCtx.resume(); } catch(e) {}
+      }
+    }
+
+    function startVisualizer(){
+      stopVisualizer();
+      resizeViz();
+
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 256;
+      dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+      try { sourceNode.disconnect(); } catch(e) {}
+      try { analyser.disconnect(); } catch(e) {}
+      sourceNode.connect(analyser);
+      analyser.connect(audioCtx.destination);
+
+      const W = viz.width, H = viz.height;
+
+      function draw(){
+        if (!analyser || !dataArray) return;
+        analyser.getByteFrequencyData(dataArray);
+
+        vizCtx.clearRect(0,0,W,H);
+
+        const barCount = dataArray.length;
+        const barW = W / barCount;
+
+        const grad = vizCtx.createLinearGradient(0, 0, W, 0);
+        grad.addColorStop(0.00, "#7c3aed");
+        grad.addColorStop(0.35, "#22d3ee");
+        grad.addColorStop(0.70, "#a3ff12");
+        grad.addColorStop(1.00, "#ff4fd8");
+
+        vizCtx.fillStyle = grad;
+        vizCtx.globalAlpha = 0.95;
+        vizCtx.shadowColor = "rgba(34,211,238,0.45)";
+        vizCtx.shadowBlur = Math.max(6, W / 220);
+
+        for (let i=0;i<barCount;i++){
+          const v = dataArray[i] / 255;
+          const bh = v * (H * 0.85);
+          const x = i * barW;
+          const y = H - bh;
+          vizCtx.fillRect(x + barW*0.15, y, barW*0.7, bh);
+        }
+
+        vizCtx.shadowBlur = 0;
+        vizCtx.shadowColor = "transparent";
+
+        vizCtx.globalAlpha = 0.18;
+        vizCtx.fillStyle = "#ffffff";
+        vizCtx.fillRect(0, H-2, W, 1);
+        vizCtx.globalAlpha = 1;
+
+        vizRaf = requestAnimationFrame(draw);
+      }
 
       vizRaf = requestAnimationFrame(draw);
     }
 
-    vizRaf = requestAnimationFrame(draw);
-  }
-
-  // Always handle visualizer when local audio plays (works across file changes)
-  player.addEventListener('play', async () => {
-    if (mode !== 'local') return;
-    await ensureAudioContext();
-    startVisualizer();
-  });
-
-  // --- SoundCloud setup ---
-  function resetSoundCloud(){
-    scReady = false;
-    scDurationMs = null;
-    if (scPollTimer) clearInterval(scPollTimer);
-    scPollTimer = null;
-    scWidget = null;
-    scFrame.src = '';
-    durEl.textContent = '—';
-    nowEl.textContent = '0:00';
-  }
-
-  function makeSCEmbedUrl(trackUrl){
-    const base = 'https://w.soundcloud.com/player/';
-    const params = new URLSearchParams({
-      url: trackUrl,
-      auto_play: 'false',
-      hide_related: 'true',
-      show_comments: 'false',
-      show_user: 'true',
-      show_reposts: 'false',
-      visual: 'false'
+    player.addEventListener('play', async () => {
+      if (mode !== 'local') return;
+      await ensureAudioContext();
+      startVisualizer();
     });
-    return `${base}?${params.toString()}`;
-  }
 
-  // --- Screen 1 flow ---
-  chooseUpload.addEventListener('click', () => {
-    uploadBox.classList.remove('hidden');
-    scBox.classList.add('hidden');
-    fileInput.click();
-  });
+    function resetLocalPlayer(){
+      if (scPollTimer) clearInterval(scPollTimer);
+      scPollTimer = null;
+      scReady = false;
+      scWidget = null;
+      scFrame.src = '';
 
-  chooseSC.addEventListener('click', () => {
-    scBox.classList.remove('hidden');
-    uploadBox.classList.add('hidden');
-    scUrl.focus();
-  });
+      scWrap.classList.add('hidden');
+      localWrap.classList.remove('hidden');
 
-  fileInput.addEventListener('change', () => {
-    const f = fileInput.files && fileInput.files[0];
-    if (!f) return;
+      try { player.pause(); } catch(e) {}
+      player.removeAttribute('src');
+      player.load();
 
-    mode = 'local';
-    newSession();
-    session.trackLabel = f.name;
-    updateHeader();
+      durEl.textContent = '—';
+      nowEl.textContent = '0:00';
+    }
 
-    localWrap.classList.remove('hidden');
-    scWrap.classList.add('hidden');
-    resetSoundCloud();
+async function loadSoundCloudUrl(url){
+  stopVisualizer();
+  scWrap.classList.remove('hidden');
+  localWrap.classList.add('hidden');
 
-    const url = URL.createObjectURL(f);
-    player.src = url;
-    player.load(); // ✅ ensure fresh load
+  const encoded = encodeURIComponent(url);
+  scFrame.src = `https://w.soundcloud.com/player/?url=${encoded}&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&visual=true`;
 
-    gotoScreen(2);
+  scWidget = SC.Widget(scFrame);
+  scReady = false;
+  scDurationMs = null;
 
-    player.onloadedmetadata = () => {
-      durEl.textContent = isFinite(player.duration) ? fmtTime(player.duration) : '—';
-    };
-    player.ontimeupdate = () => {
-      nowEl.textContent = fmtTime(player.currentTime || 0);
-    };
-
-    player.play().catch(()=>{});
-  });
-
-  loadSCBtn.addEventListener('click', () => {
-    const url = (scUrl.value || '').trim();
-    if (!url) return alert('Paste a SoundCloud track URL first.');
-
-    mode = 'soundcloud';
-    newSession();
-
-    scWrap.classList.remove('hidden');
-    localWrap.classList.add('hidden');
-
-    stopVisualizer();
-    player.pause();
-    player.src = '';
-    player.load(); // ✅ reset local element
-
-    resetSoundCloud();
-    scFrame.src = makeSCEmbedUrl(url);
-    scWidget = SC.Widget(scFrame);
-
+  await new Promise((resolve) => {
     scWidget.bind(SC.Widget.Events.READY, () => {
       scReady = true;
 
       scWidget.getDuration((ms) => {
-        scDurationMs = (typeof ms === 'number') ? ms : null;
-        if (scDurationMs != null) durEl.textContent = fmtTime(scDurationMs / 1000);
+        scDurationMs = ms || null;
+        if (scDurationMs) durEl.textContent = fmtTime(scDurationMs / 1000);
       });
 
+      // ✅ Try SoundCloud metadata (sometimes delayed)
       scWidget.getCurrentSound((sound) => {
-        session.trackLabel = sound?.title ? sound.title : 'SoundCloud track';
-        updateHeader();
+        const title = sound?.title || null;
+        const artist = sound?.user?.username || sound?.user?.full_name || null;
+
+        if (session && title) {
+          session.trackLabel = artist ? `${title} — ${artist}` : title;
+          updateHeader();
+        }
       });
 
-      scPollTimer = setInterval(() => {
-        if (!scWidget || !scReady) return;
-        scWidget.isPaused((paused) => {
-          if (paused) return;
-          scWidget.getPosition((ms) => {
-            nowEl.textContent = fmtTime((ms || 0) / 1000);
-          });
-        });
-      }, 400);
-
-      gotoScreen(2);
-    });
-
-    scWidget.bind(SC.Widget.Events.ERROR, () => {
-      alert('Could not load that SoundCloud link. Try a public/unlisted track URL (not a playlist).');
-      resetSoundCloud();
+      // ✅ Always resolve so we don't hang
+      resolve();
     });
   });
 
-  // --- Screen 2 controls ---
-  backBtn.addEventListener('click', () => {
-    if (!confirmLoseSessionIfNeeded()) return;
+  if (scPollTimer) clearInterval(scPollTimer);
+  scPollTimer = setInterval(() => {
+    if (!scWidget || !scReady) return;
+    scWidget.getPosition((ms) => nowEl.textContent = fmtTime((ms || 0) / 1000));
+  }, 250);
 
-    stopVisualizer();
-    resetSoundCloud();
+  // Fallback label only if nothing else set it
+  if (session && !session.trackLabel) {
+    session.trackLabel = url;
+    updateHeader();
+  }
+}
 
-    player.pause();
-    player.src = '';
-    player.load(); // ✅ hard reset for next file
 
-    fileInput.value = '';
-    scUrl.value = '';
+    function hardResetSession(){
+      resetLocalPlayer();
+      stopVisualizer();
+      pendingNoteTime = null;
+      cancelNote();
+      fileInput.value = '';
+      session = null;
+      mode = null;
+      logEl.innerHTML = `<div class="small">No session loaded.</div>`;
+      trackLine.textContent = `Track: —`;
+    }
 
-    pendingNoteTime = null;
-    cancelNote();
+    // ===== Landing actions (2-screen flow) =====
+   startUpload.addEventListener('click', () => {
+  if (!confirmLoseSessionIfNeeded()) return;
 
-    mode = null;
-    session = null;
+  mode = 'local';
+  goto('screen2');
 
-    nowEl.textContent = '0:00';
-    durEl.textContent = '—';
-    trackLine.textContent = 'Track: —';
+  // Create/clear session now (listener can be set after file choose)
+  newSession();
+
+  // MUST happen immediately from the user click (no prompt before it)
+  fileInput.value = '';
+  fileInput.click();
+});
+
+
+    startSC.addEventListener('click', async () => {
+      if (!confirmLoseSessionIfNeeded()) return;
+      askNameOptional();
+
+      const raw = window.prompt('Paste the SoundCloud track link:', '');
+if (!raw) return;
+
+const url = raw.trim();
+
+mode = 'soundcloud';
+goto('screen2');
+newSession();
+
+// ✅ set a clean track name immediately (oEmbed is reliable)
+const title = await resolveSoundCloudTitle(url);
+if (session) {
+  session.trackLabel = title || url;
+  updateHeader();
+}
+
+try {
+  await loadSoundCloudUrl(url);
+} catch(e){
+  alert('Could not load that SoundCloud link.');
+  console.error(e);
+}
+
+    });
+
+    // ===== Load local file =====
+    fileInput.addEventListener('change', () => {
+      resetLocalPlayer();
+
+      const f = fileInput.files && fileInput.files[0];
+      if (!f) return;
+        // Ask for name only after the file is chosen (keeps picker unblocked)
+  if (!listenerName) {
+    askNameOptional();
+    if (session) session.listener = (listenerName || '').trim() || null;
+  }
+
+
+      mode = 'local';
+      if (!session) newSession();
+
+      session.trackLabel = f.name || 'Local file';
+      updateHeader();
+
+      const url = URL.createObjectURL(f);
+      player.src = url;
+      player.load();
+
+      player.onloadedmetadata = () => {
+        durEl.textContent = fmtTime(player.duration || 0);
+      };
+
+      player.ontimeupdate = () => {
+        nowEl.textContent = fmtTime(player.currentTime || 0);
+      };
+    });
+
+    // Back (always to landing)
+    backBtn.addEventListener('click', () => {
+      hardResetSession();
+      goto('screen0');
+    });
+
+    // Reactions
+    hateBtn.addEventListener('click', () => mark('hate'));
+    dislikeBtn.addEventListener('click', () => mark('dislike'));
+    likeBtn.addEventListener('click', () => mark('like'));
+    loveBtn.addEventListener('click', () => mark('love'));
+
+    // Notes
+    noteBtn.addEventListener('click', lockNoteTimestamp);
+    submitNoteBtn.addEventListener('click', submitNote);
+    cancelNoteBtn.addEventListener('click', cancelNote);
+
+    // Keyboard shortcuts
+    window.addEventListener('keydown', (e) => {
+      if (!session) return;
+      if (composer && !composer.classList.contains('hidden')) return;
+
+      const k = (e.key || '').toLowerCase();
+      if (k === 'h') mark('hate');
+      if (k === 'd') mark('dislike');
+      if (k === 'l') mark('like');
+      if (k === 'v') mark('love');
+    });
+
+    // Export CSV
+    exportBtn.addEventListener('click', () => {
+      if (!session) return alert('No session loaded.');
+
+      const rows = [];
+      rows.push(['listener','mode','track','type','timestamp_sec','timestamp_mmss','note','created_at'].join(','));
+
+      const sorted = session.marks.slice().sort((a,b) => a.t - b.t);
+      for (const m of sorted){
+        rows.push([
+          (session.listener || ''),
+          (session.mode || ''),
+          (session.trackLabel || ''),
+          (m.type || ''),
+          (m.t ?? ''),
+          fmtTime(m.t || 0),
+          (m.text ? `"${String(m.text).replaceAll('"','""')}"` : ''),
+          new Date(m.at).toISOString()
+        ].join(','));
+      }
+
+      const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `timestamp-feedback_${Date.now()}.csv`;
+      a.click();
+    });
+
+    // Copy Log
+    copyBtn.addEventListener('click', async () => {
+      if (!session) return alert('No session loaded.');
+
+      const sorted = session.marks.slice().sort((a,b) => a.t - b.t);
+      const text = sorted.map(m => {
+        if (m.type === 'note') return `[${fmtTime(m.t)}] NOTE: ${m.text}`;
+        return `[${fmtTime(m.t)}] ${m.type.toUpperCase()}`;
+      }).join('\n');
+
+      try { await navigator.clipboard.writeText(text); alert('Log copied.'); }
+      catch(e) { prompt('Copy log:', text); }
+    });
+
+    // Clear
+    clearBtn.addEventListener('click', () => {
+      if (!session) return;
+      if (!confirm('Clear this session?')) return;
+      session.marks = [];
+      renderLog();
+    });
+
+    // ===== Summary modal =====
+    function buildSummaryText(){
+      if (!session) return 'No session loaded.';
+      const sorted = session.marks.slice().sort((a,b) => a.t - b.t);
+
+      const counts = { hate:0, dislike:0, like:0, love:0, note:0 };
+      for (const m of sorted){
+        if (counts[m.type] != null) counts[m.type]++;
+      }
+
+      const header = [
+        `Listener: ${session.listener || '—'}`,
+        `Mode: ${session.mode || '—'}`,
+        `Track: ${session.trackLabel || '—'}`,
+        `Marks: 😡 ${counts.hate} | 👎 ${counts.dislike} | 👍 ${counts.like} | ❤️ ${counts.love} | 📝 ${counts.note}`,
+        `---`
+      ].join('\n');
+
+      const body = sorted.map(m => {
+        if (m.type === 'note') return `[${fmtTime(m.t)}] NOTE: ${m.text}`;
+        return `[${fmtTime(m.t)}] ${m.type.toUpperCase()}`;
+      }).join('\n');
+
+      return `${header}\n${body}`;
+    }
+
+    function openSummary(){
+      summaryBox.textContent = buildSummaryText();
+      modalOverlay.classList.add('active');
+    }
+    function closeSummary(){
+      modalOverlay.classList.remove('active');
+    }
+
+    summaryBtn.addEventListener('click', openSummary);
+    closeModalBtn.addEventListener('click', closeSummary);
+    modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeSummary(); });
+
+    copySummaryBtn.addEventListener('click', async () => {
+      const text = buildSummaryText();
+      try { await navigator.clipboard.writeText(text); alert('Summary copied.'); }
+      catch(e) { prompt('Copy summary:', text); }
+    });
+
+    // Initial log state
     logEl.innerHTML = `<div class="small">No session loaded.</div>`;
-
-    uploadBox.classList.add('hidden');
-    scBox.classList.add('hidden');
-
-    gotoScreen(1);
-  });
-
-  hateBtn.addEventListener('click', () => mark('hate'));
-  dislikeBtn.addEventListener('click', () => mark('dislike'));
-  likeBtn.addEventListener('click', () => mark('like'));
-  loveBtn.addEventListener('click', () => mark('love'));
-
-  // ✅ Hotkeys disabled while typing in input/textarea/contenteditable
-  window.addEventListener('keydown', (e) => {
-    if (e.repeat) return;
-    if (!screen2.classList.contains('active')) return;
-
-    const t = e.target;
-    const tag = (t && t.tagName) ? t.tagName.toLowerCase() : '';
-    const isTyping = tag === 'input' || tag === 'textarea' || (t && t.isContentEditable);
-    if (isTyping) return;
-
-    const k = e.key.toLowerCase();
-    if (k === 'h') mark('hate');
-    if (k === 'd') mark('dislike');
-    if (k === 'l') mark('like');
-    if (k === 'v') mark('love');
-    if (k === 'n') lockNoteTimestamp();
-  });
-
-  noteBtn.addEventListener('click', lockNoteTimestamp);
-  cancelNoteBtn.addEventListener('click', cancelNote);
-  submitNoteBtn.addEventListener('click', submitNote);
-
-  // --- Export / Copy / Clear ---
-  exportBtn.addEventListener('click', () => {
-    if (!session) return alert('No session to export.');
-    const rows = [['listener','mode','track','type','time_sec','time_mmss','note_text','marked_at_iso']];
-    const sorted = session.marks.slice().sort((a,b) => a.t - b.t);
-    sorted.forEach(m => rows.push([
-      session.listener || '',
-      session.mode || '',
-      session.trackLabel || '',
-      m.type,
-      String(m.t),
-      fmtTime(m.t),
-      m.type === 'note' ? (m.text || '') : '',
-      new Date(m.at).toISOString()
-    ]));
-
-    const csv = rows.map(r => r.map(v => {
-      const s = String(v ?? '');
-      return /[",\n]/.test(s) ? `"${s.replaceAll('"','""')}"` : s;
-    }).join(',')).join('\n');
-
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    const safe = (session.trackLabel || 'feedback').replace(/[^\w\-]+/g, '_').slice(0,60);
-    a.download = `${safe}_timestamps.csv`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  });
-
-  copyBtn.addEventListener('click', async () => {
-    if (!session) return alert('No session to copy.');
-    const sorted = session.marks.slice().sort((a,b) => a.t - b.t);
-    const lines = sorted.map(m => {
-      const t = fmtTime(m.t);
-      if (m.type === 'note') return `${t} 📝 ${m.text}`;
-      const em = m.type === 'hate' ? '😡' : m.type === 'dislike' ? '👎' : m.type === 'like' ? '👍' : '❤️';
-      return `${t} ${em} ${m.type}`;
-    });
-    const head = [
-      `Listener: ${session.listener || '—'}`,
-      `Mode: ${session.mode === 'local' ? 'Upload' : 'SoundCloud'}`,
-      `Track: ${session.trackLabel || '—'}`,
-      ''
-    ].join('\n');
-    const text = head + lines.join('\n');
-
-    try { await navigator.clipboard.writeText(text); alert('Copied.'); }
-    catch(e) { prompt('Copy this:', text); }
-  });
-
-  clearBtn.addEventListener('click', () => {
-    if (!session) return;
-    if (!confirm('Clear the current session log?')) return;
-    session.marks = [];
-    renderLog();
-  });
-
-  // --- Summary ---
-  function buildSummaryText(){
-    if (!session) return 'No session loaded.';
-
-    const counts = { hate:0, dislike:0, like:0, love:0, note:0 };
-    session.marks.forEach(m => { if (counts[m.type] != null) counts[m.type]++; });
-
-    const sorted = session.marks.slice().sort((a,b) => a.t - b.t);
-    const lines = sorted.map(m => {
-      const t = fmtTime(m.t);
-      if (m.type === 'note') return `${t} 📝 ${m.text}`;
-      const em = m.type === 'hate' ? '😡' : m.type === 'dislike' ? '👎' : m.type === 'like' ? '👍' : '❤️';
-      return `${t} ${em} ${m.type}`;
-    });
-
-    return [
-      `Listener: ${session.listener || '—'}`,
-      `Mode: ${session.mode === 'local' ? 'Upload' : 'SoundCloud'}`,
-      `Track: ${session.trackLabel || '—'}`,
-      `Created: ${new Date(session.createdAt).toLocaleString()}`,
-      '',
-      `Totals: 😡 ${counts.hate}  👎 ${counts.dislike}  👍 ${counts.like}  ❤️ ${counts.love}  📝 ${counts.note}`,
-      '',
-      'Timeline:',
-      ...lines
-    ].join('\n');
-  }
-
-  function openSummary(){
-    summaryBox.textContent = buildSummaryText();
-    modalOverlay.classList.add('active');
-  }
-  function closeSummary(){
-    modalOverlay.classList.remove('active');
-  }
-
-  summaryBtn.addEventListener('click', openSummary);
-  closeModalBtn.addEventListener('click', closeSummary);
-  modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeSummary(); });
-
-  copySummaryBtn.addEventListener('click', async () => {
-    const text = buildSummaryText();
-    try { await navigator.clipboard.writeText(text); alert('Summary copied.'); }
-    catch(e) { prompt('Copy summary:', text); }
-  });
-
-  // Initial log state
-  logEl.innerHTML = `<div class="small">No session loaded.</div>`;
-})();
-</script>
+  })();
+  </script>
 </body>
 </html>
