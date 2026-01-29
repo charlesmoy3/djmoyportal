@@ -499,7 +499,7 @@
               </div>
 
               <div>
-                <div class="small" style="margin-bottom:8px;">Session log (auto-updates):</div>
+                <div class="small" style="margin-bottom:8px;">Session log:</div>
                 <div id="log" class="log"></div>
                 <div class="small" style="margin-top:10px;">
                   Export/copy when you’re done.
