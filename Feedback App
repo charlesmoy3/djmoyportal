@@ -250,6 +250,45 @@
     background: rgba(0,0,0,0.33);
   }
 
+  .localLoadedOverlay{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    color: rgba(255,255,255,0.62);
+    font-size:13px;
+    pointer-events:none;
+    text-align: center;
+  }
+
+ .localLoadedIcon{
+  font-size: 42px;          /* BIG checkmark */
+  line-height: 1;
+  margin-bottom: 6px;
+
+  /* fully neutralize button styles */
+  background: none;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  width: auto;
+  height: auto;
+  display: block;
+
+  opacity: 0.9;
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,0.35));
+}
+
+
+
+  .localLoadedText{
+    letter-spacing: 0.01em;
+  }
+
+
   .reactions{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
   @media (min-width:640px){ .reactions{ grid-template-columns:1fr 1fr 1fr 1fr; } }
 
@@ -459,6 +498,7 @@
 /* ===== Local (uploaded) custom player bar ===== */
 .localVizWrap{
   width:100%;
+  position:relative;
 }
 
 .localBar{
@@ -542,7 +582,9 @@
 #player{
   display:none;
 }
-
+.playerCard{
+  margin-bottom: 14px;
+}
   </style>
 </head>
 
@@ -554,7 +596,7 @@
         <!-- SCREEN 0: Landing -->
         <div id="screen0" class="screen active">
           <div class="hero">
-            <h1 class="heroTitle">Get Better Feedback</h1>
+            <h1 class="heroTitle">Timestamp Feedback</h1>
             <p class="heroSub">
               Get precise feedback from anyone — even if they don’t know mixing terms.
               Reactions + notes are saved with exact timestamps.
@@ -605,6 +647,11 @@
 
                     <div class="localVizWrap">
                       <canvas id="viz" class="viz"></canvas>
+                      <div id="localLoadedOverlay" class="localLoadedOverlay hidden" aria-hidden="true">
+                        <div class="localLoadedIcon">✅</div>
+                        <div class="localLoadedText">File loaded · Tap Play</div>
+                      </div>
+
                     </div>
 
                     <div class="localBar" aria-label="Local audio controls">
@@ -641,7 +688,7 @@
                   </div>
                 </div>
 
-                <div class="small" style="margin: 10px 0 8px;">Reactions</div>
+                <!-- <div class="small" style="margin: 10px 0 8px;">Reactions</div> -->
                 <div class="reactions">
                   <button id="hateBtn" class="danger">😡 Hate</button>
                   <button id="dislikeBtn" class="danger">👎 Dislike</button>
@@ -651,10 +698,10 @@
 
                 <div class="hr"></div>
 
-                <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-                  <button id="noteBtn" class="secondary" style="flex:1; min-width:160px;">📝 Note</button>
-                  <div class="small" id="noteHint">Tap to lock the time, then type.</div>
-                </div>
+               <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+  <button id="noteBtn" class="secondary" style="width:100%;">📝 Note (Locks current time)</button>
+</div>
+
 
                 <div id="composer" class="composer hidden" style="margin-top:10px;">
                   <div class="small">Note locked at: <b id="lockedAt">—</b></div>
@@ -663,10 +710,6 @@
                     <button id="submitNoteBtn" class="good" style="flex:1; min-width:160px;">Submit Note</button>
                     <button id="cancelNoteBtn" class="secondary" style="flex:1; min-width:160px;">Cancel</button>
                   </div>
-                </div>
-
-                <div class="small" style="margin-top:10px;">
-                  Keyboard shortcuts: H = hate, D = dislike, L = like, V = love.
                 </div>
               </div>
 
@@ -734,6 +777,22 @@
     const localSeek = document.getElementById('localSeek');
     const localCur = document.getElementById('localCur');
     const localLen = document.getElementById('localLen');
+    const localLoadedOverlay = document.getElementById('localLoadedOverlay');
+    let localLoadedDismissed = false;
+
+    function showLocalLoadedOverlay(){
+      if (!localLoadedOverlay) return;
+      localLoadedDismissed = false;
+      localLoadedOverlay.classList.remove('hidden');
+    }
+
+    function dismissLocalLoadedOverlay(){
+      if (!localLoadedOverlay) return;
+      if (localLoadedDismissed) return;
+      localLoadedDismissed = true;
+      localLoadedOverlay.classList.add('hidden');
+    }
+
 
 
     // SoundCloud player
@@ -981,7 +1040,7 @@
 
     function renderLog(){
       if (!session || !session.marks.length){
-        logEl.innerHTML = `<div class="small">No marks yet. Tap reactions or add a note.</div>`;
+        logEl.innerHTML = `<div class="small">No marks yet. Tap a button or add a note.</div>`;
         return;
       }
 
@@ -1247,11 +1306,14 @@
 
 player.addEventListener('play', async () => {
       if (mode !== 'local') return;
+      dismissLocalLoadedOverlay();
       await ensureAudioContext();
       startVisualizer();
     });
 
     function resetLocalPlayer(){
+      if (localLoadedOverlay) localLoadedOverlay.classList.add('hidden');
+      localLoadedDismissed = false;
       if (scPollTimer) clearInterval(scPollTimer);
       scPollTimer = null;
       scReady = false;
@@ -1433,6 +1495,7 @@ player.addEventListener('play', async () => {
 
       // Update immediately
       resetLocalUI();
+      showLocalLoadedOverlay();
 
     });
 
