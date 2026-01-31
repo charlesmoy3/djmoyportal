@@ -972,32 +972,41 @@
       }
     }
 
-    async function getCanonicalSoundCloudUrl(input){
-      const resolved = await resolveSoundCloudUrl(input);
-      let canonical = normalizeSoundCloudUrl(resolved);
+  async function getCanonicalSoundCloudUrl(input){
+  try{
+    const inputUrl = new URL(input);
 
-      try{
-        const host = new URL(canonical).hostname;
-
-        const isGoodHost =
-          host === "soundcloud.com" ||
-          host === "www.soundcloud.com" ||
-          host === "api.soundcloud.com";
-
-        const isSmartLinkHost = (host === "on.soundcloud.com");
-
-        if (!isGoodHost || isSmartLinkHost){
-          const oembedUrl = await extractSoundCloudWidgetUrlFromOEmbed(input);
-          if (oembedUrl){
-            canonical = normalizeSoundCloudUrl(oembedUrl);
-          }
-        }
-      }catch(e){
-        // keep canonical
-      }
-
-      return canonical;
+    // 🚨 HARD RULE: always use oEmbed for on.soundcloud.com
+    if (inputUrl.hostname === "on.soundcloud.com"){
+      const oembedUrl = await extractSoundCloudWidgetUrlFromOEmbed(input);
+      if (oembedUrl) return normalizeSoundCloudUrl(oembedUrl);
+      return input;
     }
+
+    // Try normal resolution for everything else
+    const resolved = await resolveSoundCloudUrl(input);
+    let canonical = normalizeSoundCloudUrl(resolved);
+
+    const host = new URL(canonical).hostname;
+    const isGoodHost =
+      host === "soundcloud.com" ||
+      host === "www.soundcloud.com" ||
+      host === "api.soundcloud.com";
+
+    // Fallback to oEmbed if still not canonical
+    if (!isGoodHost){
+      const oembedUrl = await extractSoundCloudWidgetUrlFromOEmbed(input);
+      if (oembedUrl){
+        canonical = normalizeSoundCloudUrl(oembedUrl);
+      }
+    }
+
+    return canonical;
+  }catch(e){
+    return input;
+  }
+}
+
 
     function newSession(){
       session = {
