@@ -974,7 +974,9 @@
 
   async function getCanonicalSoundCloudUrl(input){
   try{
-    const inputUrl = new URL(input);
+ input = extractFirstUrlFromText(input);
+const inputUrl = new URL(input);
+
 
     // 🚨 HARD RULE: always use oEmbed for on.soundcloud.com
     if (inputUrl.hostname === "on.soundcloud.com"){
@@ -1448,15 +1450,28 @@ player.addEventListener('play', async () => {
       fileInput.click();
     });
 
+function extractFirstUrlFromText(text){
+  const s = String(text || '').trim();
+
+  // Find first http/https URL in the pasted text
+  const m = s.match(/https?:\/\/[^\s]+/i);
+  if (!m) return s;
+
+  // Trim trailing punctuation that often sticks to URLs
+  return m[0].replace(/[)\],.!?]+$/g, '');
+}
+
     startSC.addEventListener('click', async () => {
       if (!confirmLoseSessionIfNeeded()) return;
       askNameOptional();
 
       const raw = window.prompt('Paste the SoundCloud track link:', '');
-      if (!raw) return;
+if (!raw) return;
 
-      const inputUrl = raw.trim();
-      const canonical = await getCanonicalSoundCloudUrl(inputUrl);
+// ✅ Accept mobile "share text" + URL blobs
+const inputUrl = extractFirstUrlFromText(raw);
+const canonical = await getCanonicalSoundCloudUrl(inputUrl);
+
 
       mode = 'soundcloud';
       goto('screen2');
