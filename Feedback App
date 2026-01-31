@@ -1448,6 +1448,7 @@ player.addEventListener('play', async () => {
 
       const inputUrl = raw.trim();
       const canonical = await getCanonicalSoundCloudUrl(inputUrl);
+      alert("CANONICAL = " + canonical);
 
       mode = 'soundcloud';
       goto('screen2');
