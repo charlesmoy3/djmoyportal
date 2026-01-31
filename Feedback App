@@ -1373,7 +1373,8 @@ player.addEventListener('play', async () => {
           if (meta.thumb) scArt.src = meta.thumb;
           scTitleEl.textContent = meta.title || '—';
           scArtistEl.textContent = meta.author || '—';
-          scOpenLink.href = url;
+          scOpenLink.href = meta.url || url;
+
 
           if (session && meta.title){
             session.trackLabel = meta.author ? `${meta.title} — ${meta.author}` : meta.title;
