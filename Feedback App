@@ -628,8 +628,100 @@ async function resolveSoundCloudTitle(url){
   }
 }
 
+// ===============================
+// SoundCloud URL Canonicalization
+// ===============================
 
-    
+// Step 1: resolve redirects (on.soundcloud.com, etc)
+async function resolveSoundCloudUrl(input){
+  try{
+    const u = new URL(input);
+    if (u.protocol !== "http:" && u.protocol !== "https:") return input;
+
+    const res = await fetch(input, { redirect: "follow" });
+    return (res && res.url) ? res.url : input;
+  }catch(e){
+    // Guardrail: if parsing or fetch fails, fall back to raw
+    return input;
+  }
+}
+
+// Step 2: sanitize to canonical
+function normalizeSoundCloudUrl(url){
+  try{
+    const u = new URL(url);
+
+    // Convert mobile hostname to desktop canonical
+   if (u.hostname === "m.soundcloud.com") u.hostname = "soundcloud.com";
+if (u.hostname === "www.soundcloud.com") u.hostname = "soundcloud.com";
+
+    // Strip query + hash
+    u.search = "";
+    u.hash = "";
+
+    return u.toString();
+  }catch(e){
+    return url;
+  }
+}
+
+async function getCanonicalSoundCloudUrl(input){
+  const resolved = await resolveSoundCloudUrl(input);
+  let canonical = normalizeSoundCloudUrl(resolved);
+
+  // If fetch couldn't follow redirects (common due to CORS),
+  // canonical might still be on.soundcloud.com -> widget rejects it.
+  try{
+    const host = new URL(canonical).hostname;
+
+   const isGoodHost =
+  host === "soundcloud.com" ||
+  host === "www.soundcloud.com" ||
+  host === "api.soundcloud.com";
+
+const isSmartLinkHost = (host === "on.soundcloud.com");
+
+    if (!isGoodHost || isSmartLinkHost){
+      const oembedUrl = await extractSoundCloudWidgetUrlFromOEmbed(input);
+      if (oembedUrl){
+        canonical = normalizeSoundCloudUrl(oembedUrl);
+      }
+    }
+  }catch(e){
+    // ignore, keep canonical
+  }
+
+  return canonical;
+}
+
+
+    // ✅ Extract a widget-safe URL from oEmbed HTML (works even for on.soundcloud.com)
+async function extractSoundCloudWidgetUrlFromOEmbed(input){
+  try{
+    const oembed = `https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(input)}`;
+    const res = await fetch(oembed);
+    if (!res.ok) return null;
+    const data = await res.json();
+
+    // oEmbed returns iframe HTML that contains:
+    // src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/ID&..."
+    const html = data?.html || "";
+    const m = html.match(/src="([^"]+)"/i);
+    if (!m) return null;
+
+    const iframeSrc = m[1];
+    const u = new URL(iframeSrc);
+
+    // The actual track URL is stored inside the iframe src as ?url=<encoded>
+    const inner = u.searchParams.get("url");
+    if (!inner) return null;
+
+    return decodeURIComponent(inner);
+  }catch(e){
+    return null;
+  }
+}
+
 
     function newSession(){
       session = {
@@ -913,6 +1005,8 @@ async function resolveSoundCloudTitle(url){
     }
 
 async function loadSoundCloudUrl(url){
+    console.log("SC EMBED URL:", url);
+
   stopVisualizer();
   scWrap.classList.remove('hidden');
   localWrap.classList.add('hidden');
@@ -996,29 +1090,34 @@ async function loadSoundCloudUrl(url){
       askNameOptional();
 
       const raw = window.prompt('Paste the SoundCloud track link:', '');
-if (!raw) return;
+      if (!raw) return;
 
-const url = raw.trim();
+    const inputUrl = raw.trim();
+
+// ✅ Canonicalize BEFORE title lookup + embed + trackLabel
+const canonical = await getCanonicalSoundCloudUrl(inputUrl);
 
 mode = 'soundcloud';
 goto('screen2');
 newSession();
 
-// ✅ set a clean track name immediately (oEmbed is reliable)
-const title = await resolveSoundCloudTitle(url);
+// ✅ Title lookup should use canonical too
+const title = await resolveSoundCloudTitle(canonical);
 if (session) {
-  session.trackLabel = title || url;
+  session.trackLabel = title || canonical;
   updateHeader();
 }
 
 try {
-  await loadSoundCloudUrl(url);
+  await loadSoundCloudUrl(canonical);
 } catch(e){
   alert('Could not load that SoundCloud link.');
   console.error(e);
 }
 
-    });
+}); // ✅ CLOSE startSC click handler
+
+
 
     // ===== Load local file =====
     fileInput.addEventListener('change', () => {
