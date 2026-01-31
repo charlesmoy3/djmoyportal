@@ -218,6 +218,12 @@
 
   button.secondary{ font-size:13px; padding:10px 12px; opacity:.98; }
 
+/* Make NOTE match reaction button height (override secondary sizing) */
+#noteBtn{
+  font-size:15px;
+  padding:14px 12px;
+}
+
   button.good{
     background: linear-gradient(180deg, rgba(6,182,212,0.18), rgba(0,0,0,0));
   }
