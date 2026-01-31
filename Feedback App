@@ -399,6 +399,62 @@
   opacity: 0;
 }
 
+/* ===== SoundCloud custom meta header ===== */
+.scMetaBar{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px;
+  border:1px solid rgba(255,255,255,0.10);
+  border-radius:12px;
+  background: rgba(0,0,0,0.28);
+  margin-bottom:10px;
+}
+
+.scArt{
+  width:54px;
+  height:54px;
+  border-radius:10px;
+  object-fit:cover;
+  border:1px solid rgba(255,255,255,0.10);
+  flex: 0 0 auto;
+}
+
+.scMetaText{
+  min-width:0;
+  flex: 1 1 auto;
+  display:grid;
+  gap:2px;
+}
+
+.scTitle{
+  font-size:14px;
+  font-weight:700;
+  line-height:1.15;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.scArtist{
+  font-size:12px;
+  color: rgba(255,255,255,0.70);
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.scOpenLink{
+  font-size:12px;
+  color: rgba(255,255,255,0.85);
+  text-decoration:none;
+  padding:8px 10px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.10);
+  background: rgba(10, 8, 20, 0.40);
+  flex: 0 0 auto;
+}
+
   </style>
 </head>
 
@@ -441,8 +497,7 @@
             </div>
 
             <!-- Hidden: used to open OS file picker when user clicks Upload -->
-           <input id="file" type="file" accept="audio/*" class="filePicker" />
-
+            <input id="file" type="file" accept="audio/*" class="filePicker" />
 
             <div class="hr"></div>
 
@@ -465,6 +520,17 @@
 
                   <!-- SoundCloud player -->
                   <div id="scPlayerWrap" class="hidden">
+
+                    <!-- Our custom meta header (artwork + title) -->
+                    <div id="scMetaBar" class="scMetaBar hidden">
+                      <img id="scArt" class="scArt" alt="Artwork" />
+                      <div class="scMetaText">
+                        <div id="scTitle" class="scTitle">—</div>
+                        <div id="scArtist" class="scArtist">—</div>
+                      </div>
+                      <a id="scOpenLink" class="scOpenLink" href="#" target="_blank" rel="noopener">Open</a>
+                    </div>
+
                     <iframe id="scFrame" allow="autoplay" style="width:100%; height:166px; border:0; border-radius:12px;"></iframe>
                   </div>
                 </div>
@@ -499,7 +565,7 @@
               </div>
 
               <div>
-                <div class="small" style="margin-bottom:8px;">Session log:</div>
+                <div class="small" style="margin-bottom:8px;">Session log (auto-updates):</div>
                 <div id="log" class="log"></div>
                 <div class="small" style="margin-top:10px;">
                   Export/copy when you’re done.
@@ -562,6 +628,13 @@
     const scWrap = document.getElementById('scPlayerWrap');
     const scFrame = document.getElementById('scFrame');
 
+    // SoundCloud meta UI (our custom header)
+    const scMetaBar = document.getElementById('scMetaBar');
+    const scArt = document.getElementById('scArt');
+    const scTitleEl = document.getElementById('scTitle');
+    const scArtistEl = document.getElementById('scArtist');
+    const scOpenLink = document.getElementById('scOpenLink');
+
     // Buttons
     const hateBtn = document.getElementById('hateBtn');
     const dislikeBtn = document.getElementById('dislikeBtn');
@@ -609,119 +682,121 @@
 
     function pad2(n){ return String(n).padStart(2,'0'); }
     function fmtTime(sec){
-  sec = Math.max(0, Number(sec) || 0);
-  const m = Math.floor(sec / 60);
-  const s = Math.floor(sec % 60);
-  return `${m}:${pad2(s)}`;
-}
+      sec = Math.max(0, Number(sec) || 0);
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return `${m}:${pad2(s)}`;
+    }
 
-// ✅ SoundCloud title via oEmbed (reliable)
-async function resolveSoundCloudTitle(url){
-  try{
-    const oembed = `https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(url)}`;
-    const res = await fetch(oembed);
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data?.title || null;
-  } catch(e){
-    return null;
-  }
-}
-
-// ===============================
-// SoundCloud URL Canonicalization
-// ===============================
-
-// Step 1: resolve redirects (on.soundcloud.com, etc)
-async function resolveSoundCloudUrl(input){
-  try{
-    const u = new URL(input);
-    if (u.protocol !== "http:" && u.protocol !== "https:") return input;
-
-    const res = await fetch(input, { redirect: "follow" });
-    return (res && res.url) ? res.url : input;
-  }catch(e){
-    // Guardrail: if parsing or fetch fails, fall back to raw
-    return input;
-  }
-}
-
-// Step 2: sanitize to canonical
-function normalizeSoundCloudUrl(url){
-  try{
-    const u = new URL(url);
-
-    // Convert mobile hostname to desktop canonical
-   if (u.hostname === "m.soundcloud.com") u.hostname = "soundcloud.com";
-if (u.hostname === "www.soundcloud.com") u.hostname = "soundcloud.com";
-
-    // Strip query + hash
-    u.search = "";
-    u.hash = "";
-
-    return u.toString();
-  }catch(e){
-    return url;
-  }
-}
-
-async function getCanonicalSoundCloudUrl(input){
-  const resolved = await resolveSoundCloudUrl(input);
-  let canonical = normalizeSoundCloudUrl(resolved);
-
-  // If fetch couldn't follow redirects (common due to CORS),
-  // canonical might still be on.soundcloud.com -> widget rejects it.
-  try{
-    const host = new URL(canonical).hostname;
-
-   const isGoodHost =
-  host === "soundcloud.com" ||
-  host === "www.soundcloud.com" ||
-  host === "api.soundcloud.com";
-
-const isSmartLinkHost = (host === "on.soundcloud.com");
-
-    if (!isGoodHost || isSmartLinkHost){
-      const oembedUrl = await extractSoundCloudWidgetUrlFromOEmbed(input);
-      if (oembedUrl){
-        canonical = normalizeSoundCloudUrl(oembedUrl);
+    // ✅ SoundCloud title via oEmbed (reliable)
+    async function resolveSoundCloudTitle(url){
+      try{
+        const oembed = `https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(url)}`;
+        const res = await fetch(oembed);
+        if (!res.ok) return null;
+        const data = await res.json();
+        return data?.title || null;
+      } catch(e){
+        return null;
       }
     }
-  }catch(e){
-    // ignore, keep canonical
-  }
 
-  return canonical;
-}
-
+    // ✅ SoundCloud oEmbed meta (title/author/thumbnail)
+    async function resolveSoundCloudMeta(url){
+      try{
+        const oembed = `https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(url)}`;
+        const res = await fetch(oembed);
+        if (!res.ok) return null;
+        const data = await res.json();
+        return {
+          title: data?.title || null,
+          author: data?.author_name || null,
+          thumb: data?.thumbnail_url || null
+        };
+      } catch(e){
+        return null;
+      }
+    }
 
     // ✅ Extract a widget-safe URL from oEmbed HTML (works even for on.soundcloud.com)
-async function extractSoundCloudWidgetUrlFromOEmbed(input){
-  try{
-    const oembed = `https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(input)}`;
-    const res = await fetch(oembed);
-    if (!res.ok) return null;
-    const data = await res.json();
+    async function extractSoundCloudWidgetUrlFromOEmbed(input){
+      try{
+        const oembed = `https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(input)}`;
+        const res = await fetch(oembed);
+        if (!res.ok) return null;
+        const data = await res.json();
 
-    // oEmbed returns iframe HTML that contains:
-    // src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/ID&..."
-    const html = data?.html || "";
-    const m = html.match(/src="([^"]+)"/i);
-    if (!m) return null;
+        const html = data?.html || "";
+        const m = html.match(/src="([^"]+)"/i);
+        if (!m) return null;
 
-    const iframeSrc = m[1];
-    const u = new URL(iframeSrc);
+        const iframeSrc = m[1];
+        const u = new URL(iframeSrc);
 
-    // The actual track URL is stored inside the iframe src as ?url=<encoded>
-    const inner = u.searchParams.get("url");
-    if (!inner) return null;
+        const inner = u.searchParams.get("url");
+        if (!inner) return null;
 
-    return decodeURIComponent(inner);
-  }catch(e){
-    return null;
-  }
-}
+        return decodeURIComponent(inner);
+      }catch(e){
+        return null;
+      }
+    }
 
+    // Step 2: sanitize to canonical
+    function normalizeSoundCloudUrl(url){
+      try{
+        const u = new URL(url);
+
+        if (u.hostname === "m.soundcloud.com") u.hostname = "soundcloud.com";
+        if (u.hostname === "www.soundcloud.com") u.hostname = "soundcloud.com";
+
+        u.search = "";
+        u.hash = "";
+
+        return u.toString();
+      }catch(e){
+        return url;
+      }
+    }
+
+    // Step 1: resolve redirects (best-effort; may fail due to CORS)
+    async function resolveSoundCloudUrl(input){
+      try{
+        const u = new URL(input);
+        if (u.protocol !== "http:" && u.protocol !== "https:") return input;
+        const res = await fetch(input, { redirect: "follow" });
+        return (res && res.url) ? res.url : input;
+      }catch(e){
+        return input;
+      }
+    }
+
+    async function getCanonicalSoundCloudUrl(input){
+      const resolved = await resolveSoundCloudUrl(input);
+      let canonical = normalizeSoundCloudUrl(resolved);
+
+      try{
+        const host = new URL(canonical).hostname;
+
+        const isGoodHost =
+          host === "soundcloud.com" ||
+          host === "www.soundcloud.com" ||
+          host === "api.soundcloud.com";
+
+        const isSmartLinkHost = (host === "on.soundcloud.com");
+
+        if (!isGoodHost || isSmartLinkHost){
+          const oembedUrl = await extractSoundCloudWidgetUrlFromOEmbed(input);
+          if (oembedUrl){
+            canonical = normalizeSoundCloudUrl(oembedUrl);
+          }
+        }
+      }catch(e){
+        // keep canonical
+      }
+
+      return canonical;
+    }
 
     function newSession(){
       session = {
@@ -993,6 +1068,13 @@ async function extractSoundCloudWidgetUrlFromOEmbed(input){
       scWidget = null;
       scFrame.src = '';
 
+      // Clear custom SC meta header
+      if (scMetaBar) scMetaBar.classList.add('hidden');
+      if (scArt) scArt.removeAttribute('src');
+      if (scTitleEl) scTitleEl.textContent = '—';
+      if (scArtistEl) scArtistEl.textContent = '—';
+      if (scOpenLink) scOpenLink.href = '#';
+
       scWrap.classList.add('hidden');
       localWrap.classList.remove('hidden');
 
@@ -1004,58 +1086,74 @@ async function extractSoundCloudWidgetUrlFromOEmbed(input){
       nowEl.textContent = '0:00';
     }
 
-async function loadSoundCloudUrl(url){
-    console.log("SC EMBED URL:", url);
+    async function loadSoundCloudUrl(url){
+      stopVisualizer();
+      scWrap.classList.remove('hidden');
+      localWrap.classList.add('hidden');
 
-  stopVisualizer();
-  scWrap.classList.remove('hidden');
-  localWrap.classList.add('hidden');
+      const encoded = encodeURIComponent(url);
+      scFrame.src = `https://w.soundcloud.com/player/?url=${encoded}&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false`;
 
-  const encoded = encodeURIComponent(url);
-  scFrame.src = `https://w.soundcloud.com/player/?url=${encoded}&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&visual=true`;
+      // Populate our custom header (artwork/title) via oEmbed
+      try{
+        const meta = await resolveSoundCloudMeta(url);
+        if (meta){
+          scMetaBar.classList.remove('hidden');
 
-  scWidget = SC.Widget(scFrame);
-  scReady = false;
-  scDurationMs = null;
+          if (meta.thumb) scArt.src = meta.thumb;
+          scTitleEl.textContent = meta.title || '—';
+          scArtistEl.textContent = meta.author || '—';
+          scOpenLink.href = url;
 
-  await new Promise((resolve) => {
-    scWidget.bind(SC.Widget.Events.READY, () => {
-      scReady = true;
-
-      scWidget.getDuration((ms) => {
-        scDurationMs = ms || null;
-        if (scDurationMs) durEl.textContent = fmtTime(scDurationMs / 1000);
-      });
-
-      // ✅ Try SoundCloud metadata (sometimes delayed)
-      scWidget.getCurrentSound((sound) => {
-        const title = sound?.title || null;
-        const artist = sound?.user?.username || sound?.user?.full_name || null;
-
-        if (session && title) {
-          session.trackLabel = artist ? `${title} — ${artist}` : title;
-          updateHeader();
+          if (session && meta.title){
+            session.trackLabel = meta.author ? `${meta.title} — ${meta.author}` : meta.title;
+            updateHeader();
+          }
+        } else {
+          scMetaBar.classList.add('hidden');
         }
+      } catch(e){
+        scMetaBar.classList.add('hidden');
+      }
+
+      scWidget = SC.Widget(scFrame);
+      scReady = false;
+      scDurationMs = null;
+
+      await new Promise((resolve) => {
+        scWidget.bind(SC.Widget.Events.READY, () => {
+          scReady = true;
+
+          scWidget.getDuration((ms) => {
+            scDurationMs = ms || null;
+            if (scDurationMs) durEl.textContent = fmtTime(scDurationMs / 1000);
+          });
+
+          scWidget.getCurrentSound((sound) => {
+            const title = sound?.title || null;
+            const artist = sound?.user?.username || sound?.user?.full_name || null;
+
+            if (session && title) {
+              session.trackLabel = artist ? `${title} — ${artist}` : title;
+              updateHeader();
+            }
+          });
+
+          resolve();
+        });
       });
 
-      // ✅ Always resolve so we don't hang
-      resolve();
-    });
-  });
+      if (scPollTimer) clearInterval(scPollTimer);
+      scPollTimer = setInterval(() => {
+        if (!scWidget || !scReady) return;
+        scWidget.getPosition((ms) => nowEl.textContent = fmtTime((ms || 0) / 1000));
+      }, 250);
 
-  if (scPollTimer) clearInterval(scPollTimer);
-  scPollTimer = setInterval(() => {
-    if (!scWidget || !scReady) return;
-    scWidget.getPosition((ms) => nowEl.textContent = fmtTime((ms || 0) / 1000));
-  }, 250);
-
-  // Fallback label only if nothing else set it
-  if (session && !session.trackLabel) {
-    session.trackLabel = url;
-    updateHeader();
-  }
-}
-
+      if (session && !session.trackLabel) {
+        session.trackLabel = url;
+        updateHeader();
+      }
+    }
 
     function hardResetSession(){
       resetLocalPlayer();
@@ -1070,20 +1168,17 @@ async function loadSoundCloudUrl(url){
     }
 
     // ===== Landing actions (2-screen flow) =====
-   startUpload.addEventListener('click', () => {
-  if (!confirmLoseSessionIfNeeded()) return;
+    startUpload.addEventListener('click', () => {
+      if (!confirmLoseSessionIfNeeded()) return;
 
-  mode = 'local';
-  goto('screen2');
+      mode = 'local';
+      goto('screen2');
 
-  // Create/clear session now (listener can be set after file choose)
-  newSession();
+      newSession();
 
-  // MUST happen immediately from the user click (no prompt before it)
-  fileInput.value = '';
-  fileInput.click();
-});
-
+      fileInput.value = '';
+      fileInput.click();
+    });
 
     startSC.addEventListener('click', async () => {
       if (!confirmLoseSessionIfNeeded()) return;
@@ -1092,32 +1187,26 @@ async function loadSoundCloudUrl(url){
       const raw = window.prompt('Paste the SoundCloud track link:', '');
       if (!raw) return;
 
-    const inputUrl = raw.trim();
+      const inputUrl = raw.trim();
+      const canonical = await getCanonicalSoundCloudUrl(inputUrl);
 
-// ✅ Canonicalize BEFORE title lookup + embed + trackLabel
-const canonical = await getCanonicalSoundCloudUrl(inputUrl);
+      mode = 'soundcloud';
+      goto('screen2');
+      newSession();
 
-mode = 'soundcloud';
-goto('screen2');
-newSession();
+      const title = await resolveSoundCloudTitle(canonical);
+      if (session) {
+        session.trackLabel = title || canonical;
+        updateHeader();
+      }
 
-// ✅ Title lookup should use canonical too
-const title = await resolveSoundCloudTitle(canonical);
-if (session) {
-  session.trackLabel = title || canonical;
-  updateHeader();
-}
-
-try {
-  await loadSoundCloudUrl(canonical);
-} catch(e){
-  alert('Could not load that SoundCloud link.');
-  console.error(e);
-}
-
-}); // ✅ CLOSE startSC click handler
-
-
+      try {
+        await loadSoundCloudUrl(canonical);
+      } catch(e){
+        alert('Could not load that SoundCloud link.');
+        console.error(e);
+      }
+    });
 
     // ===== Load local file =====
     fileInput.addEventListener('change', () => {
@@ -1125,12 +1214,11 @@ try {
 
       const f = fileInput.files && fileInput.files[0];
       if (!f) return;
-        // Ask for name only after the file is chosen (keeps picker unblocked)
-  if (!listenerName) {
-    askNameOptional();
-    if (session) session.listener = (listenerName || '').trim() || null;
-  }
 
+      if (!listenerName) {
+        askNameOptional();
+        if (session) session.listener = (listenerName || '').trim() || null;
+      }
 
       mode = 'local';
       if (!session) newSession();
@@ -1151,24 +1239,20 @@ try {
       };
     });
 
-    // Back (always to landing)
     backBtn.addEventListener('click', () => {
       hardResetSession();
       goto('screen0');
     });
 
-    // Reactions
     hateBtn.addEventListener('click', () => mark('hate'));
     dislikeBtn.addEventListener('click', () => mark('dislike'));
     likeBtn.addEventListener('click', () => mark('like'));
     loveBtn.addEventListener('click', () => mark('love'));
 
-    // Notes
     noteBtn.addEventListener('click', lockNoteTimestamp);
     submitNoteBtn.addEventListener('click', submitNote);
     cancelNoteBtn.addEventListener('click', cancelNote);
 
-    // Keyboard shortcuts
     window.addEventListener('keydown', (e) => {
       if (!session) return;
       if (composer && !composer.classList.contains('hidden')) return;
@@ -1180,7 +1264,6 @@ try {
       if (k === 'v') mark('love');
     });
 
-    // Export CSV
     exportBtn.addEventListener('click', () => {
       if (!session) return alert('No session loaded.');
 
@@ -1208,7 +1291,6 @@ try {
       a.click();
     });
 
-    // Copy Log
     copyBtn.addEventListener('click', async () => {
       if (!session) return alert('No session loaded.');
 
@@ -1222,7 +1304,6 @@ try {
       catch(e) { prompt('Copy log:', text); }
     });
 
-    // Clear
     clearBtn.addEventListener('click', () => {
       if (!session) return;
       if (!confirm('Clear this session?')) return;
@@ -1230,7 +1311,6 @@ try {
       renderLog();
     });
 
-    // ===== Summary modal =====
     function buildSummaryText(){
       if (!session) return 'No session loaded.';
       const sorted = session.marks.slice().sort((a,b) => a.t - b.t);
@@ -1274,7 +1354,6 @@ try {
       catch(e) { prompt('Copy summary:', text); }
     });
 
-    // Initial log state
     logEl.innerHTML = `<div class="small">No session loaded.</div>`;
   })();
   </script>
