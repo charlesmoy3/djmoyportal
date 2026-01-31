@@ -652,7 +652,7 @@
                 <div class="hr"></div>
 
                 <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-                  <button id="noteBtn" class="secondary" style="flex:1; min-width:160px;">📝 Note</button>
+                  <button id="noteBtn" class="secondary" style="flex:1; min-width:160px;">📝 Write a Note</button>
                   <div class="small" id="noteHint">Tap to lock the time, then type.</div>
                 </div>
 
