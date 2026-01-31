@@ -455,6 +455,94 @@
   flex: 0 0 auto;
 }
 
+  
+/* ===== Local (uploaded) custom player bar ===== */
+.localVizWrap{
+  width:100%;
+}
+
+.localBar{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 10px;
+  border:1px solid rgba(255,255,255,0.10);
+  border-radius:12px;
+  background: rgba(0,0,0,0.28);
+}
+
+.localPlayBtn{
+  width:44px;
+  height:44px;
+  border-radius:999px;
+  padding:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  line-height:1;
+  background: rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.14);
+  box-shadow:none;
+}
+
+.localPlayBtn:hover{
+  border-color: rgba(6,182,212,0.40);
+}
+
+.localTime{
+  width:46px;
+  text-align:center;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255,255,255,0.80);
+  font-size:12px;
+}
+
+.localSeek{
+  flex:1 1 auto;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.14);
+  outline: none;
+}
+
+/* WebKit track */
+.localSeek::-webkit-slider-runnable-track{
+  height:10px;
+  border-radius:999px;
+  background: rgba(255,255,255,0.14);
+}
+.localSeek::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  appearance:none;
+  width:16px;
+  height:16px;
+  border-radius:999px;
+  background: rgba(255,255,255,0.88);
+  border: 2px solid rgba(0,0,0,0.35);
+  margin-top:-3px;
+}
+
+/* Firefox */
+.localSeek::-moz-range-track{
+  height:10px;
+  border-radius:999px;
+  background: rgba(255,255,255,0.14);
+}
+.localSeek::-moz-range-thumb{
+  width:16px;
+  height:16px;
+  border-radius:999px;
+  background: rgba(255,255,255,0.88);
+  border: 2px solid rgba(0,0,0,0.35);
+}
+
+#player{
+  display:none;
+}
+
   </style>
 </head>
 
@@ -466,7 +554,7 @@
         <!-- SCREEN 0: Landing -->
         <div id="screen0" class="screen active">
           <div class="hero">
-            <h1 class="heroTitle">Timestamp Feedback</h1>
+            <h1 class="heroTitle">Get Better Feedback</h1>
             <p class="heroSub">
               Get precise feedback from anyone — even if they don’t know mixing terms.
               Reactions + notes are saved with exact timestamps.
@@ -514,8 +602,26 @@
                 <div class="playerCard" style="margin-top:12px;">
                   <!-- Local audio -->
                   <div id="localPlayerWrap">
-                    <canvas id="viz" class="viz"></canvas>
-                    <audio id="player" controls></audio>
+
+                    <div class="localVizWrap">
+                      <canvas id="viz" class="viz"></canvas>
+                    </div>
+
+                    <div class="localBar" aria-label="Local audio controls">
+                      <button id="localPlayBtn" class="localPlayBtn" aria-label="Play/Pause">▶</button>
+
+                      <div class="localTime">
+                        <span id="localCur">0:00</span>
+                      </div>
+
+                      <input id="localSeek" class="localSeek" type="range" min="0" max="1000" value="0" step="1" aria-label="Seek" />
+
+                      <div class="localTime">
+                        <span id="localLen">0:00</span>
+                      </div>
+                    </div>
+
+                    <audio id="player" preload="metadata"></audio>
                   </div>
 
                   <!-- SoundCloud player -->
@@ -546,7 +652,7 @@
                 <div class="hr"></div>
 
                 <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-                  <button id="noteBtn" class="secondary" style="flex:1; min-width:160px;">📝 Note (lock timestamp)</button>
+                  <button id="noteBtn" class="secondary" style="flex:1; min-width:160px;">📝 Note</button>
                   <div class="small" id="noteHint">Tap to lock the time, then type.</div>
                 </div>
 
@@ -623,6 +729,12 @@
     const player = document.getElementById('player');
     const viz = document.getElementById('viz');
     const vizCtx = viz.getContext('2d');
+    // Local custom controls (SoundCloud-ish)
+    const localPlayBtn = document.getElementById('localPlayBtn');
+    const localSeek = document.getElementById('localSeek');
+    const localCur = document.getElementById('localCur');
+    const localLen = document.getElementById('localLen');
+
 
     // SoundCloud player
     const scWrap = document.getElementById('scPlayerWrap');
@@ -687,6 +799,30 @@
       const s = Math.floor(sec % 60);
       return `${m}:${pad2(s)}`;
     }
+
+    // ===== Local custom player UI helpers =====
+    function syncLocalPlayIcon(){
+      if (!localPlayBtn) return;
+      localPlayBtn.textContent = (player && !player.paused && player.src) ? '❚❚' : '▶';
+    }
+
+    function setLocalSeekFromTime(){
+      if (!localSeek) return;
+      const dur = Number(player?.duration || 0);
+      const cur = Number(player?.currentTime || 0);
+      const pct = (dur > 0) ? (cur / dur) : 0;
+      localSeek.value = String(Math.round(pct * 1000));
+      if (localCur) localCur.textContent = fmtTime(cur);
+      if (localLen) localLen.textContent = fmtTime(dur);
+    }
+
+    function resetLocalUI(){
+      if (localSeek) localSeek.value = '0';
+      if (localCur) localCur.textContent = '0:00';
+      if (localLen) localLen.textContent = '0:00';
+      syncLocalPlayIcon();
+    }
+
 
     // ✅ SoundCloud title via oEmbed (reliable)
     async function resolveSoundCloudTitle(url){
@@ -1055,7 +1191,61 @@
       vizRaf = requestAnimationFrame(draw);
     }
 
-    player.addEventListener('play', async () => {
+    
+    // Local custom controls events
+    if (localPlayBtn){
+      localPlayBtn.addEventListener('click', async () => {
+        if (!player || !player.src) return;
+        try{
+          if (player.paused) await player.play();
+          else player.pause();
+        }catch(e){}
+        syncLocalPlayIcon();
+      });
+    }
+
+    // Dragging the seek bar
+    let isSeeking = false;
+
+    if (localSeek){
+      localSeek.addEventListener('pointerdown', () => { isSeeking = true; });
+      localSeek.addEventListener('pointerup', () => { isSeeking = false; });
+
+      localSeek.addEventListener('input', () => {
+        if (!player || !player.src) return;
+        const dur = Number(player.duration || 0);
+        if (!(dur > 0)) return;
+
+        const pct = Number(localSeek.value || 0) / 1000;
+        const t = Math.min(dur, Math.max(0, pct * dur));
+        if (localCur) localCur.textContent = fmtTime(t);
+      });
+
+      localSeek.addEventListener('change', () => {
+        if (!player || !player.src) return;
+        const dur = Number(player.duration || 0);
+        if (!(dur > 0)) return;
+
+        const pct = Number(localSeek.value || 0) / 1000;
+        const t = Math.min(dur, Math.max(0, pct * dur));
+        player.currentTime = t;
+        setLocalSeekFromTime();
+      });
+    }
+
+    player.addEventListener('pause', () => {
+      syncLocalPlayIcon();
+    });
+
+    player.addEventListener('ended', () => {
+      syncLocalPlayIcon();
+      setLocalSeekFromTime();
+    });
+
+    // Initial UI state
+    resetLocalUI();
+
+player.addEventListener('play', async () => {
       if (mode !== 'local') return;
       await ensureAudioContext();
       startVisualizer();
@@ -1084,6 +1274,7 @@
 
       durEl.textContent = '—';
       nowEl.textContent = '0:00';
+      resetLocalUI();
     }
 
     async function loadSoundCloudUrl(url){
@@ -1232,11 +1423,17 @@
 
       player.onloadedmetadata = () => {
         durEl.textContent = fmtTime(player.duration || 0);
+        setLocalSeekFromTime();
       };
 
       player.ontimeupdate = () => {
         nowEl.textContent = fmtTime(player.currentTime || 0);
+        if (!isSeeking) setLocalSeekFromTime();
       };
+
+      // Update immediately
+      resetLocalUI();
+
     });
 
     backBtn.addEventListener('click', () => {
